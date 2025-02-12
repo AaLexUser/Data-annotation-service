@@ -14,6 +14,6 @@ public class Assign {
     @Id
     private Long id;
     @ManyToOne
-    @JoinColumn(name = "batch_id")
+    @JoinColumn
     private Batch batchId;
 }
