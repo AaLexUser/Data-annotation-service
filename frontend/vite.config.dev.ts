@@ -12,7 +12,7 @@ export default defineConfig({
   publicDir: resolve(__dirname, 'public'),
   server: {
     host: true,
-    port: 8086,
+    port: 3000,
     proxy: {
       '/api': {
         target: 'http://localhost:8000/',

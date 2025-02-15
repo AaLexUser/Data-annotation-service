@@ -19,8 +19,8 @@ const options = [
       },
       {
         key: 2,
-        name: 'Start Operator Portal (operator)',
-        value: 'start:operator',
+        name: 'Start Admin Portal (admin)',
+        value: 'start:admin',
       },
       {
         key: 3,
