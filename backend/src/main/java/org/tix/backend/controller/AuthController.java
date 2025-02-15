@@ -10,7 +10,7 @@ import org.tix.backend.dto.SignUpRequest;
 import org.tix.backend.service.AuthService;
 
 @RestController
-@RequestMapping("/auth")
+@RequestMapping("/v1/user")
 public class AuthController {
 
     private final AuthService authService;
@@ -20,12 +20,12 @@ public class AuthController {
 
     }
 
-    @PostMapping("/sign-in")
+    @PostMapping("/login")
     public JwtAuthenticationResponse signIn(@RequestBody SignInRequest request) {
         return authService.signIn(request);
     }
 
-    @PostMapping("/sign-up")
+    @PostMapping("/create")
     public JwtAuthenticationResponse signUp(@RequestBody SignUpRequest request) {
         return authService.signUp(request);
 
