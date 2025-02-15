@@ -15,8 +15,8 @@ export const ECode = {
   4011001: 'Invalid Token',
   // User
   400201: 'This account does not exist, please ensure the account has logged into the platform',
-  400202: 'This account is already an operator, addition failed',
-  400203: 'This account is already an operator, addition failed',
+  400202: 'This account is already an admin, addition failed',
+  400203: 'This account is already an admin, addition failed',
   // Task
   400301: 'Task does not exist',
   400302: 'Task has ended, modifications not supported',

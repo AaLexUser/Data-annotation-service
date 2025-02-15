@@ -29,8 +29,8 @@ const options = [
       },
       {
         key: 4,
-        name: 'Build Operator Portal (operator)',
-        value: 'build:operator',
+        name: 'Build Admin Portal (admin)',
+        value: 'build:admin',
       },
       {
         key: 5,
