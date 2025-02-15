@@ -19,7 +19,7 @@
     "forceConsistentCasingInFileNames": true,
     "inlineSources": false,
     "isolatedModules": true,
-    "moduleResolution": "node",
+    "moduleResolution": "bundler",
     "resolveJsonModule": true,
     "noUnusedLocals": false,
     "noUnusedParameters": false,
@@ -32,18 +32,12 @@
     "noEmit": true,
     "noFallthroughCasesInSwitch": true,
     "allowSyntheticDefaultImports": true,
+    "allowImportingTsExtensions": true,
     "types": ["node", "vite/client"],
     "paths": {
       "@/*": ["./src/*"]
     }
   },
-  "include": [
-    "src",
-    "scripts",
-    ".eslintrc.js",
-    "vite.config.dev.ts",
-    "vite.config.prod.ts",
-    "rollup.config.ts"
-  ],
+  "include": ["src", "scripts", ".eslintrc.js", "vite.config.dev.ts", "vite.config.prod.ts", "rollup.config.ts"],
   "exclude": ["node_modules", "**/*.test.tsx", "**/*.test.ts"]
 }

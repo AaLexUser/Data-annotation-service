@@ -1,0 +1,30 @@
+@import "tailwindcss";
+
+/* Define your design tokens directly */
+@theme {
+  /* Colors (Tailwind automatically generates utilities for any --color-* tokens) */
+  --color-primary: #0d53de;
+  --color-success: #00b365;
+  --color-warning: #ff8800;
+  --color-error: #f5483b;
+  --color-base-color: #121316;
+  --color-color: rgba(18, 19, 22, 0.8);
+  --color-secondary: rgba(18, 19, 22, 0.5);
+  --color-tertiary: rgba(18, 19, 22, 0.25);
+  --color-quaternary: rgba(18, 19, 22, 0.20);
+  /* ICON and fill colors */
+  --color-icon: #4A4653;
+  --color-fill: #b4b6bc;
+  --color-fill-secondary: #EBECF0;
+  --color-fill-tertiary: #F4F5F9;
+  --color-fill-quaternary: #f9f9f9;
+  --color-colorBorder: #D7D8DD;
+  --color-borderSecondary: #EBECF0;
+  
+  /* You might define non‑color tokens with a clear naming convention */
+  --border-radius: 2; /* Use as needed in your custom utilities */
+  
+  /* Custom timing functions */
+  --transition-timing-in-expo: cubic-bezier(0.95, 0.05, 0.795, 0.035);
+  --transition-timing-out-expo: cubic-bezier(0.19, 1, 0.22, 1);
+}

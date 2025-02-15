@@ -1,0 +1,49 @@
+import { join, relative, resolve } from 'path';
+
+import { defineConfig } from 'vite';
+import react from '@vitejs/plugin-react';
+import svgr from 'vite-plugin-svgr';
+import { ViteEjsPlugin } from 'vite-plugin-ejs';
+import tailwindcss from '@tailwindcss/vite'
+
+const appDir = process.env.APP_DIR || 'src/apps/login';
+
+export default defineConfig({
+  base: '/',
+  publicDir: resolve(__dirname, 'public'),
+  server: {
+    host: true,
+    port: 3000,
+    proxy: {
+      '/api': {
+        target: 'http://localhost:8000/',
+        changeOrigin: true,
+      },
+    },
+  },
+
+  optimizeDeps: {
+    include: ['react/jsx-runtime'],
+  },
+  css: {
+    modules: {
+      localsConvention: 'camelCaseOnly',
+    },
+  },
+
+  plugins: [
+    react(),
+    svgr(),
+    tailwindcss(),
+    ViteEjsPlugin({
+      // root: resolve(__dirname, appDir),
+      root: join(__dirname, relative(__dirname, resolve(appDir))),
+    }),
+  ].filter(Boolean),
+
+  resolve: {
+    alias: {
+      '@': resolve(__dirname, 'src/'),
+    },
+  },
+});
