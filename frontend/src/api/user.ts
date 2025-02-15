@@ -3,7 +3,6 @@ import request from './request';
 export interface ICreate {
   username: string;
   password: string;
-  password2?: string;
 }
 
 /**
