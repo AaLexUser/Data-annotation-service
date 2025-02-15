@@ -11,6 +11,7 @@ import java.util.HashMap;
 @Setter
 public class Task {
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     @ManyToOne
     @JoinColumn

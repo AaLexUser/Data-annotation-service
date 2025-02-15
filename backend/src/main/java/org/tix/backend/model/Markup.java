@@ -11,6 +11,7 @@ import java.util.HashMap;
 @Setter
 public class Markup {
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     private Long version;

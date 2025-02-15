@@ -1,15 +1,15 @@
 package org.tix.backend.controller;
 
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 import org.tix.backend.dto.JwtAuthenticationResponse;
 import org.tix.backend.dto.SignInRequest;
 import org.tix.backend.dto.SignUpRequest;
 import org.tix.backend.service.AuthService;
 
-@Controller
+@RestController
 @RequestMapping("/auth")
 public class AuthController {
 
