@@ -1,5 +1,5 @@
-const shell = require('shelljs');
-const inquirer = require('inquirer');
+import shell from 'shelljs'
+import inquirer from 'inquirer';
 
 const options = [
   {

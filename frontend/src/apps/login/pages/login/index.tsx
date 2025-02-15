@@ -29,11 +29,8 @@ export default () => {
     }
   };
   return (
-    <div className="w-full h-screen bg-no-repeat bg-cover relative">
-      <div>
-        <div className="bg-sky-50 w-full h-screen"></div>
-      </div>
-      <div className="absolute right-8 top-1/2 transform -translate-y-1/2 bg-white p-8 rounded shadow-md">
+    <div className="w-full h-screen !bg-cover relative bg-blue-400">
+      <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white p-8 rounded shadow-md">
         <LoginForm<ICreate>
           onFinish={onFinish}
           form={form}
@@ -43,7 +40,7 @@ export default () => {
             },
           }}
         >
-          {on ? 'Sign In' : 'Register'}
+          <div className="text-center text-2xl font-bold mb-10">{on ? 'Sign In' : 'Register'}</div>
           <ProFormText
             name="username"
             fieldProps={{

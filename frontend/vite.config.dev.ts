@@ -4,7 +4,6 @@ import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import svgr from 'vite-plugin-svgr';
 import { ViteEjsPlugin } from 'vite-plugin-ejs';
-import tailwindcss from '@tailwindcss/vite'
 
 const appDir = process.env.APP_DIR || 'src/apps/login';
 
@@ -34,7 +33,6 @@ export default defineConfig({
   plugins: [
     react(),
     svgr(),
-    tailwindcss(),
     ViteEjsPlugin({
       // root: resolve(__dirname, appDir),
       root: join(__dirname, relative(__dirname, resolve(appDir))),
