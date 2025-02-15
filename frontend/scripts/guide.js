@@ -43,7 +43,7 @@ const options = [
 
 function main() {
   inquirer.prompt(options).then((answers) => {
-    shell.exec(`pnpm ${answers.command}`);
+    shell.exec(`npm ${answers.command}`);
   });
 }
 

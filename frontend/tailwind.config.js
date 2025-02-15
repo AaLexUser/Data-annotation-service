@@ -4,7 +4,8 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        primary: '#0d53de',
+        primary: '#ff335f',
+        primaryLight: '#fa6988',
         success: '#00b365',
         warning: '#ff8800',
         error: '#f5483b',
@@ -13,10 +14,12 @@ module.exports = {
         secondary: 'rgba(18, 19, 22, 0.5)',
         tertiary: 'rgba(18, 19, 22, 0.25)',
         quaternary: 'rgba(18, 19, 22, 0.20)',
+        background: '#141414',
+        backgroundSecondary: '#e0e0e0',
         // ICON colors
         icon: '#4A4653',
-        fill: '#b4b6bc', // primary fill color
-        'fill-secondary': '#EBECF0', // secondary fill color
+        fill: '#B4B6BC', // primary fill color
+        'fill-secondary': '#FAF3C0', // secondary fill color
         'fill-tertiary': '#F4F5F9', // tertiary fill color
         'fill-quaternary': '#f9f9f9', // quaternary fill color
         colorBorder: '#D7D8DD',

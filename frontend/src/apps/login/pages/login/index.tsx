@@ -4,6 +4,7 @@ import { LoginForm, ProFormCheckbox, ProFormText } from '@ant-design/pro-compone
 import { Form } from 'antd';
 import { message } from '@/components/StaticAnt';
 import { create, EUserRole, ICreate, login } from '@/api/user';
+import buildings from './buildings.webp'
 
 export default () => {
   const [form] = Form.useForm();
@@ -29,8 +30,8 @@ export default () => {
     }
   };
   return (
-    <div className="w-full h-screen !bg-cover relative bg-blue-400">
-      <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white p-8 rounded shadow-md">
+    <div className="h-screen relative bg-background"  style={{ background: `url(${buildings})` }}>
+      <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-backgroundSecondary p-8 rounded shadow-md">
         <LoginForm<ICreate>
           onFinish={onFinish}
           form={form}
@@ -103,13 +104,13 @@ export default () => {
           )}
         </LoginForm>
         {on ? (
-          <span className="text-blue-600 hover:text-blue-700 cursor-pointer" onClick={handleClick}>
+          <span className="text-primaryLight hover:text-primary cursor-pointer" onClick={handleClick}>
             Register
           </span>
         ) : (
           <>
             <span className="mr-2">Already have an account?</span>
-            <span className="text-blue-600 hover:text-blue-700 cursor-pointer" onClick={handleClick}>
+            <span className="text-primaryLight hover:text-primary cursor-pointer" onClick={handleClick}>
               Sign In
             </span>
           </>
