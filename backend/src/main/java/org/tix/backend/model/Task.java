@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.util.HashMap;
+import java.util.Map;
 
 @Entity
 @Getter
@@ -17,7 +18,10 @@ public class Task {
     @JoinColumn
     private Batch batchId;
     @ElementCollection
-    private HashMap<String, String> rowFromBatch;
+    @CollectionTable(name = "task_row_from_batch", joinColumns = @JoinColumn(name = "task_id"))
+    @MapKeyColumn(name = "row_from_batch_key")
+    @Column(name = "row_from_batch", columnDefinition = "TEXT")
+    private Map<String, String> rowFromBatch = new HashMap<>();
 
     private Integer finiteOverlaps;
     private Integer currentOverlaps;

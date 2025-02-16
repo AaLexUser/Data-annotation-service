@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 @Service
@@ -48,9 +49,11 @@ public class BatchService {
             String[] line;
             while ((line = reader.readNext()) != null) {
                 Task task = new Task();
+                HashMap<String,String> map = new HashMap<>();
                 for (int i = 0; i < line.length; i++) {
-                    task.getRowFromBatch().put(header[i], line[i]);
+                    map.put(header[i], line[i]);
                 }
+                task.setRowFromBatch(map);
                 task.setFiniteOverlaps(overlaps);
                 task.setCurrentOverlaps(INIT_COUNT_OF_OVERLAPS);
                 task.setBatchId(batch);

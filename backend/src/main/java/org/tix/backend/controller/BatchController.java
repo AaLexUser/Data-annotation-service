@@ -20,7 +20,7 @@ public class BatchController {
 
 
     @PostMapping("/load")
-    public ResponseEntity<?> loadBatch(@RequestParam("file") MultipartFile file, @RequestParam("overlaps") Integer overlaps) {
+    public ResponseEntity<?> loadBatch(@RequestParam MultipartFile file, @RequestParam("overlaps") Integer overlaps) {
         try {
             Batch batch = batchService.saveBatch(file, overlaps);
             return ResponseEntity.ok(batch.getId());
