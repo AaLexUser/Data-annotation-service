@@ -6,7 +6,7 @@ build/
 !**/src/test/**/build/
 .gitattributes
 backend.iml
-gradlew
+
 gradlew.bat
 ### STS ###
 .apt_generated
