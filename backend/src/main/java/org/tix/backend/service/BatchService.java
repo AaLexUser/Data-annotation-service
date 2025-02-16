@@ -1,30 +1,32 @@
 package org.tix.backend.service;
 
+import com.opencsv.CSVReader;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import org.tix.backend.model.Batch;
 import org.tix.backend.model.Task;
 import org.tix.backend.repository.BatchRepository;
+import org.tix.backend.repository.TaskRepository;
 
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 public class BatchService {
     private final BatchRepository batchRepository;
+    private final TaskRepository taskRepository;
+    private static final int INIT_COUNT_OF_OVERLAPS = 0;
 
-    public BatchService(BatchRepository batchRepository) {
+    public BatchService(BatchRepository batchRepository, TaskRepository taskRepository) {
         this.batchRepository = batchRepository;
+        this.taskRepository = taskRepository;
     }
 
-    public Object getAllBatches() {
-        return null;
-    }
-
-    public Object loadBatch(Batch batch) {
-        return null;
+    public List<Batch> getAllBatches() {
+        return batchRepository.findAll();
     }
 
     public Batch saveBatch(MultipartFile file, Integer overlaps) throws IOException {
@@ -33,18 +35,33 @@ public class BatchService {
         batch.setFormat(file.getContentType());
         batch.setIsActive(true);
         batch.setUploadedAt(LocalDateTime.now());
-        parseBatchContentToRowDictionaryInTask(file);
+        batch = batchRepository.save(batch);
+        parseBatchContentToRowDictionaryInTask(file, batch, overlaps);
         return batchRepository.save(batch);
 
     }
 
-    public void parseBatchContentToRowDictionaryInTask(MultipartFile file) {
-        Task task = new Task();
-        try (BufferedReader reader = new BufferedReader(new InputStreamReader(file.getInputStream()))) {
+    public void parseBatchContentToRowDictionaryInTask(MultipartFile file, Batch batch, Integer overlaps) {
+        List<Task> taskList = new ArrayList<>();
+        try (CSVReader reader = new CSVReader(new InputStreamReader(file.getInputStream()))) {
+            String[] header = reader.readNext();
+            String[] line;
+            while ((line = reader.readNext()) != null) {
+                Task task = new Task();
+                for (int i = 0; i < line.length; i++) {
+                    task.getRowFromBatch().put(header[i], line[i]);
+                }
+                task.setFiniteOverlaps(overlaps);
+                task.setCurrentOverlaps(INIT_COUNT_OF_OVERLAPS);
+                task.setBatchId(batch);
+                taskList.add(task);
+            }
+            taskRepository.saveAll(taskList);
 
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
 
     }
+
 }

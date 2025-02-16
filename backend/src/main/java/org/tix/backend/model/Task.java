@@ -19,5 +19,8 @@ public class Task {
     @ElementCollection
     private HashMap<String, String> rowFromBatch;
 
+    private Integer finiteOverlaps;
+    private Integer currentOverlaps;
+
 
 }

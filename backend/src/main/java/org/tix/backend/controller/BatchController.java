@@ -29,7 +29,7 @@ public class BatchController {
         }
     }
     @PostMapping("/all")
-    public ResponseEntity<?> showAllBatches(Batch batch) {
+    public ResponseEntity<?> showAllBatches() {
         return ResponseEntity.ok(batchService.getAllBatches());
     }
 
