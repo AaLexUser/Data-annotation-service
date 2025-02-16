@@ -1,4 +1,4 @@
-package org.tix.backend.dto;
+package org.tix.backend.dto.auth;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

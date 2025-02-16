@@ -5,9 +5,9 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.tix.backend.dto.JwtAuthenticationResponse;
-import org.tix.backend.dto.SignInRequest;
-import org.tix.backend.dto.SignUpRequest;
+import org.tix.backend.dto.auth.JwtAuthenticationResponse;
+import org.tix.backend.dto.auth.SignInRequest;
+import org.tix.backend.dto.auth.SignUpRequest;
 import org.tix.backend.model.User;
 import org.tix.backend.util.Role;
 

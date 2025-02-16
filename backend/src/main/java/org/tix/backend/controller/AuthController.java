@@ -5,9 +5,9 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.tix.backend.dto.JwtAuthenticationResponse;
-import org.tix.backend.dto.SignInRequest;
-import org.tix.backend.dto.SignUpRequest;
+import org.tix.backend.dto.auth.JwtAuthenticationResponse;
+import org.tix.backend.dto.auth.SignInRequest;
+import org.tix.backend.dto.auth.SignUpRequest;
 import org.tix.backend.service.AuthService;
 
 @RestController

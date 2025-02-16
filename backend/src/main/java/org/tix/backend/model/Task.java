@@ -25,6 +25,7 @@ public class Task {
 
     private Integer finiteOverlaps;
     private Integer currentOverlaps;
-
+    private Boolean isFinished;
+    private String finalMarkup;
 
 }
