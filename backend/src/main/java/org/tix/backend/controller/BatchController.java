@@ -28,7 +28,7 @@ public class BatchController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error saving batch");
         }
     }
-    @PostMapping("/all")
+    @GetMapping("/all")
     public ResponseEntity<?> showAllBatches() {
         return ResponseEntity.ok(batchService.getAllBatches());
     }

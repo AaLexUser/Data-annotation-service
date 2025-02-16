@@ -21,7 +21,7 @@ public class MarkupMapper {
         markup.setBatchId(batchRepository.findById((long) dto.getBatchId()).orElseThrow());
         markup.setElements(
                 dto.getData().stream()
-                        .collect(Collectors.toMap(FormData::getType, FormData::getValue))
+                        .collect(Collectors.toMap(FormData::getValue, FormData::getType))
         );
         return markup;
     }

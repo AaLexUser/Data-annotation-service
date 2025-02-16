@@ -1,10 +1,7 @@
 package org.tix.backend.controller;
 
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.tix.backend.dto.MarkupDTO;
 import org.tix.backend.service.MarkupService;
 
@@ -22,5 +19,8 @@ public class MarkupController {
 
         return ResponseEntity.ok(markupService.loadMarkup(markupDTO));
     }
-
+    @GetMapping("/byBatchId")
+    public ResponseEntity<?> getMarkup(@RequestParam("id") Long id) {
+        return ResponseEntity.ok(markupService.getMarkupByBatchId(id));
+    }
 }
