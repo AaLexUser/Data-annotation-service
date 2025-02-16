@@ -1,14 +1,16 @@
 package org.tix.backend.controller;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import org.tix.backend.model.Batch;
 import org.tix.backend.service.BatchService;
 
+import java.io.IOException;
+
 @RestController
-@RequestMapping("/v1/batch")
+@RequestMapping("api/v1/batch")
 public class BatchController {
     private final BatchService batchService;
 
@@ -18,9 +20,13 @@ public class BatchController {
 
 
     @PostMapping("/load")
-    public ResponseEntity<?> loadBatch(Batch batch) {
-
-        return ResponseEntity.ok(batchService.loadBatch(batch));
+    public ResponseEntity<?> loadBatch(@RequestParam("file") MultipartFile file, @RequestParam("overlaps") Integer overlaps) {
+        try {
+            Batch batch = batchService.saveBatch(file, overlaps);
+            return ResponseEntity.ok(batch);
+        } catch (IOException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error saving batch");
+        }
     }
     @PostMapping("/all")
     public ResponseEntity<?> showAllBatches(Batch batch) {

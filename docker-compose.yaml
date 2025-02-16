@@ -16,5 +16,17 @@ services:
     ports:
       - '8086:80'
 
+  backend:
+    build: ./backend
+    ports:
+      - '8000:81'
+    environment:
+      - DATABASE_HOST=postgres
+      - DATABASE_PORT=5432
+      - DATABASE_USERNAME=root
+      - DATABASE_PASSWORD=password
+      - DATABASE_NAME=mydb
+
+
 volumes:
   pgdata:

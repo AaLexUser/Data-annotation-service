@@ -18,7 +18,9 @@ configurations {
         extendsFrom annotationProcessor
     }
 }
-
+bootJar {
+    archiveFileName = 'backend.jar' // Имя JAR-файла
+}
 repositories {
     mavenCentral()
 }
