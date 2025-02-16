@@ -20,7 +20,6 @@ public class AuthService {
     private final AuthenticationManager authenticationManager;
 
 
-
     public JwtAuthenticationResponse signIn(SignInRequest request) {
         authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
                 request.getUsername(),
@@ -31,21 +30,29 @@ public class AuthService {
                 .userDetailsService()
                 .loadUserByUsername(request.getUsername());
 
-        var jwt = jwtService.generateToken(user);
-        return new JwtAuthenticationResponse(jwt);
+        return jwtAuthenticationResponseBuilder(userService.getByLogin(user.getUsername()));
     }
 
     public JwtAuthenticationResponse signUp(SignUpRequest request) {
+        boolean isFirstUser = userService.countUsers() == 0;
+
         var user = User.builder()
                 .login(request.getUsername())
                 .password(passwordEncoder.encode(request.getPassword()))
-                .role(Role.ASSESSOR)
+                .role(isFirstUser ? Role.ADMIN : Role.ASSESSOR)
                 .build();
 
         userService.create(user);
-        
-        var jwt = jwtService.generateToken(user);
 
-        return new JwtAuthenticationResponse(jwt);
+        return jwtAuthenticationResponseBuilder(user);
+    }
+
+    private JwtAuthenticationResponse jwtAuthenticationResponseBuilder(User user) {
+        JwtAuthenticationResponse response = new JwtAuthenticationResponse();
+        response.setToken(jwtService.generateToken(user));
+        response.setUsername(user.getUsername());
+        response.setRole(userService.getByLogin(user.getUsername()).getRole());
+        response.setUserId(userService.getByLogin(user.getUsername()).getId());
+        return response;
     }
 }

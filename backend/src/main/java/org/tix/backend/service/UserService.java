@@ -39,4 +39,8 @@ public class UserService {
     public UserDetailsService userDetailsService() {
         return this::getByLogin;
     }
+
+    public Long countUsers() {
+        return userRepository.count();
+    }
 }

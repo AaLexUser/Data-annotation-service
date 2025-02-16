@@ -32,6 +32,7 @@ public class AuthController {
 
     @PostMapping("/create")
     public ResponseEntity<JwtAuthenticationResponse> signUp(@RequestBody SignUpRequest request, HttpServletResponse response) {
+
         JwtAuthenticationResponse jwtResponse = authService.signUp(request);
         setCookieForResponse(jwtResponse.getToken(), response);
         return new ResponseEntity<>(jwtResponse, HttpStatus.OK);
