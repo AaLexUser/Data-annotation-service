@@ -19,6 +19,7 @@ export default () => {
     if (on) {
       const res = await login(values);
       await message.success(`Welcome back, ${res.name}`);
+      window.location.href = res.role === EUserRole.admin ? '/admin' : '/supplier';
     } else {
       if (values.password !== values.password2) {
         await message.error('Passwords do not match');
