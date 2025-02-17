@@ -1,4 +1,6 @@
 import { defineStore } from 'pinia';
+
+
 import axios from 'axios';
 
 axios.defaults.baseURL = 'http://localhost:8000';
@@ -42,4 +44,5 @@ export const useAuthStore = defineStore('auth', {
             this.isAuthenticated = false;
         },
     },
+    persist: true,
 });
