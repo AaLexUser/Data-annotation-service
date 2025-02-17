@@ -23,7 +23,14 @@ const router = useRouter();
 const register = async () => {
   try {
     await authStore.register({ username: username.value, password: password.value });
-    router.push('/dashboard');
+    // Перенаправление в зависимости от роли
+    if (authStore.role === 'ADMIN') {
+      router.push('/admin');
+    } else if (authStore.role === 'ASSESSOR') {
+      router.push('/assessor');
+    } else {
+      router.push('/login'); // fallback
+    }
   } catch (error) {
     alert('Ошибка регистрации');
   }
