@@ -19,7 +19,7 @@ services:
   backend:
     build: ./backend
     ports:
-      - '8000:81'
+      - '8000:8000'
     environment:
       - DATABASE_HOST=postgres
       - DATABASE_PORT=5432
