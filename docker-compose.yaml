@@ -12,9 +12,9 @@ services:
       - pgdata:/var/lib/postgresql/data
   
   frontend:
-    build: ./frontend
+    build: ./frontend2
     ports:
-      - '8086:80'
+      - '8085:8085'
 
   backend:
     build: ./backend
