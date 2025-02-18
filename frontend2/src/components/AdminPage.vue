@@ -77,6 +77,22 @@
           </div>
           <div class="modal-body">
             <div v-if="currentMarkup">
+              <div class="version-selector" v-if="markupVersions.length > 0">
+                <h3>Версии разметки</h3>
+                <div class="version-list">
+                  <div 
+                    v-for="markup in markupVersions" 
+                    :key="markup.version"
+                    :class="['version-item', { active: markup.isActive }]"
+                    @click="activateVersion(markup.batchId.id, markup.version)"
+                  >
+                    <span class="version-number">Версия {{ markup.version }}</span>
+                    <span class="version-date">{{ formatDate(markup.createdAt) }}</span>
+                    <span v-if="markup.isActive" class="active-badge">Активная</span>
+                  </div>
+                </div>
+              </div>
+
               <div class="markup-group">
                 <h3>Radio Buttons</h3>
                 <ul class="markup-list">
@@ -107,6 +123,34 @@
         @close="closeAssignModal"
         @assigned="handleBatchAssigned"
       />
+
+      <div v-if="selectedBatch" class="batch-details">
+        <h3>Детали пакета #{{ selectedBatch.id }}</h3>
+        
+        <div class="tabs">
+          <button 
+            :class="['tab-btn', { active: activeTab === 'info' }]"
+            @click="activeTab = 'info'"
+          >
+            Информация
+          </button>
+          <button 
+            :class="['tab-btn', { active: activeTab === 'honeypot' }]"
+            @click="activeTab = 'honeypot'"
+          >
+            Обучающие задания
+          </button>
+        </div>
+
+        <div v-if="activeTab === 'info'" class="tab-content">
+          <!-- Existing batch info content -->
+          // ... existing code ...
+        </div>
+
+        <div v-if="activeTab === 'honeypot'" class="tab-content">
+          <HoneypotManager :batchId="selectedBatch.id" />
+        </div>
+      </div>
     </div>
   </AppLayout>
 </template>
@@ -120,6 +164,7 @@ import BatchUploadModal from './BatchUploadModal.vue';
 import MarkupCreator from './MarkupCreator.vue';
 import BatchAssignmentModal from './BatchAssignmentModal.vue';
 import AppLayout from './AppLayout.vue';
+import HoneypotManager from './HoneypotManager.vue';
 
 // Types
 const BatchType = {
@@ -220,6 +265,7 @@ function useMarkupModal() {
   const isMarkupModalOpen = ref(false);
   const isViewMarkupModalOpen = ref(false);
   const currentMarkup = ref(null);
+  const markupVersions = ref([]);
   
   const openMarkupModal = () => {
     isMarkupModalOpen.value = true;
@@ -240,13 +286,41 @@ function useMarkupModal() {
 
   const viewMarkup = async (batchId) => {
     try {
+      // Get active markup
       const response = await axios.get(`/api/v1/markup/byBatchId?id=${batchId}`, {
         withCredentials: true
       });
       currentMarkup.value = response.data;
+      
+      // Get version history
+      const versionsResponse = await axios.get(`/api/v1/markup/versions/${batchId}`, {
+        withCredentials: true
+      });
+      markupVersions.value = versionsResponse.data;
+      
       openViewMarkupModal();
     } catch (error) {
       console.error('Error fetching markup:', error);
+    }
+  };
+
+  const activateVersion = async (batchId, version) => {
+    try {
+      const response = await axios.post(
+        `/api/v1/markup/activate/${batchId}/${version}`,
+        {},
+        { withCredentials: true }
+      );
+      currentMarkup.value = response.data;
+      
+      // Refresh version list
+      const versionsResponse = await axios.get(
+        `/api/v1/markup/versions/${batchId}`,
+        { withCredentials: true }
+      );
+      markupVersions.value = versionsResponse.data;
+    } catch (error) {
+      console.error('Error activating version:', error);
     }
   };
 
@@ -274,12 +348,14 @@ function useMarkupModal() {
     isMarkupModalOpen,
     isViewMarkupModalOpen,
     currentMarkup,
+    markupVersions,
     radioItems,
     checkboxItems,
     openMarkupModal,
     closeMarkupModal,
     viewMarkup,
-    closeViewMarkupModal
+    closeViewMarkupModal,
+    activateVersion
   };
 }
 
@@ -338,12 +414,14 @@ const {
   isMarkupModalOpen, 
   isViewMarkupModalOpen,
   currentMarkup,
+  markupVersions,
   radioItems,
   checkboxItems,
   openMarkupModal, 
   closeMarkupModal,
   viewMarkup,
-  closeViewMarkupModal
+  closeViewMarkupModal,
+  activateVersion
 } = useMarkupModal();
 const {
   showAssignModal,
@@ -362,6 +440,9 @@ const handleBatchUploaded = () => {
 onMounted(() => {
   fetchBatches();
 });
+
+// Add to existing refs
+const activeTab = ref('info');
 </script>
 
 <style scoped>
@@ -558,6 +639,67 @@ onMounted(() => {
   padding: 24px;
 }
 
+.version-selector {
+  margin-bottom: 24px;
+  padding: 16px;
+  background-color: #f8fafc;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+}
+
+.version-selector h3 {
+  color: #334155;
+  font-size: 1.1rem;
+  margin-bottom: 12px;
+}
+
+.version-list {
+  display: grid;
+  gap: 8px;
+}
+
+.version-item {
+  display: flex;
+  align-items: center;
+  padding: 12px;
+  background-color: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.version-item:hover {
+  background-color: #f1f5f9;
+  border-color: #94a3b8;
+}
+
+.version-item.active {
+  background-color: #eef2ff;
+  border-color: #4f46e5;
+}
+
+.version-number {
+  font-weight: 500;
+  color: #334155;
+  margin-right: 12px;
+}
+
+.version-date {
+  color: #64748b;
+  font-size: 0.9em;
+}
+
+.active-badge {
+  margin-left: auto;
+  padding: 4px 8px;
+  background-color: #4f46e5;
+  color: white;
+  border-radius: 4px;
+  font-size: 0.8em;
+  font-weight: 500;
+}
+
 .markup-group {
   margin-bottom: 24px;
 }
@@ -642,5 +784,39 @@ onMounted(() => {
     padding: 10px 12px;
     font-size: 0.9rem;
   }
+}
+
+.tabs {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+  border-bottom: 1px solid #e2e8f0;
+  padding-bottom: 10px;
+}
+
+.tab-btn {
+  padding: 8px 16px;
+  border: none;
+  background: none;
+  color: #64748b;
+  cursor: pointer;
+  font-weight: 500;
+  border-radius: 4px;
+}
+
+.tab-btn:hover {
+  background-color: #f1f5f9;
+  color: #334155;
+}
+
+.tab-btn.active {
+  background-color: #eef2ff;
+  color: #4f46e5;
+}
+
+.tab-content {
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 </style>

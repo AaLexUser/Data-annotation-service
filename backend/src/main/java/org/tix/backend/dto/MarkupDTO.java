@@ -1,13 +1,10 @@
 package org.tix.backend.dto;
 
 import lombok.Data;
-
-import java.util.List;
+import java.util.Map;
 
 @Data
 public class MarkupDTO {
-    private List<FormData> data;
-    private int batchId;
-
-
+    private Integer batchId;
+    private Map<String, String> elements;
 }
