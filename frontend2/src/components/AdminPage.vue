@@ -53,6 +53,13 @@
               >
                 <span class="icon">👥</span>
               </button>
+              <button 
+                class="assign-btn"
+                @click="navigateToBatchDetail(batch)"
+                title="Детали"
+              >
+                <span class="icon">⚙️</span>
+              </button>
             </td>
           </tr>
         </tbody>
@@ -354,6 +361,17 @@ const {
 } = useAssignModal();
 const { formatDate } = useFormatting();
 
+const router = useRouter();
+function navigateToBatchDetail(batch) {
+  console.log('Navigating to BatchDetail with ID:', batch?.id); // Log the batch ID
+  if (batch) {
+    router.push({ name: 'BatchDetail', params: { id: batch.id } });
+  } else {
+    console.error('Batch is undefined');
+  }
+}
+
+
 const handleBatchUploaded = () => {
   fetchBatches();
 };
@@ -361,6 +379,8 @@ const handleBatchUploaded = () => {
 // Lifecycle hooks
 onMounted(() => {
   fetchBatches();
+  console.log('Batches:', batches.value); // Log batches
+  console.log('Filtered Batches:', filteredBatches.value); // Log filtered batches
 });
 </script>
 

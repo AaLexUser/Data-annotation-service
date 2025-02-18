@@ -4,6 +4,8 @@ import Register from '@/components/Register.vue';
 import AdminPage from '@/components/AdminPage.vue';
 import AssessorPage from '@/components/AssessorPage.vue';
 import UserManagementPage from '@/components/UserManagementPage.vue';
+import BatchDetailPage from '@/components/BatchDetailPage.vue';
+
 import { useAuthStore } from '@/stores/auth';
 
 const routes = [
@@ -51,6 +53,12 @@ const routes = [
       requiresAuth: true,
       roles: ['ADMIN']
     }
+  },
+  {
+    path: '/batch/:id',
+    name: 'BatchDetail',
+    component: BatchDetailPage,
+    props: true
   }
 ];
 
