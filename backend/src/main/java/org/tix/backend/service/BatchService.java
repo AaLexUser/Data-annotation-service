@@ -7,6 +7,8 @@ import org.tix.backend.model.Batch;
 import org.tix.backend.model.Task;
 import org.tix.backend.repository.BatchRepository;
 import org.tix.backend.repository.TaskRepository;
+import org.tix.backend.repository.UserRepository;
+import org.tix.backend.util.Role;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -20,10 +22,12 @@ public class BatchService {
     private final BatchRepository batchRepository;
     private final TaskRepository taskRepository;
     private static final int INIT_COUNT_OF_OVERLAPS = 0;
+    private final UserRepository userRepository;
 
-    public BatchService(BatchRepository batchRepository, TaskRepository taskRepository) {
+    public BatchService(BatchRepository batchRepository, TaskRepository taskRepository, UserRepository userRepository) {
         this.batchRepository = batchRepository;
         this.taskRepository = taskRepository;
+        this.userRepository = userRepository;
     }
 
     public List<Batch> getAllBatches() {
@@ -68,6 +72,9 @@ public class BatchService {
     }
 
     public List<Batch> getAllBatchesForAssessor(Long userId) {
+        if (userRepository.findById(userId).orElseThrow().getRole() == Role.ADMIN) {
+            return batchRepository.findAll();
+        }
        return batchRepository.findAllByUserIdInAvailableUsers(userId);
     }
 }
