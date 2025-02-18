@@ -77,4 +77,9 @@ public class BatchService {
         }
        return batchRepository.findAllByUserIdInAvailableUsers(userId);
     }
+    public String getBatchStatus(Long batchId) {
+        Batch batch = batchRepository.findById(batchId)
+                .orElseThrow(() -> new RuntimeException("Batch not found"));
+        return batch.getIsActive() ? "active" : "inactive";
+    }
 }

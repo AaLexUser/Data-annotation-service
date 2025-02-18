@@ -14,6 +14,12 @@
         <div class="batch-info" @click="$emit('batchSelected', batch)">
           <h3>{{ batch.name }}</h3>
           <p>Uploaded: {{ formatDate(batch.uploadedAt) }}</p>
+          <!-- Индикатор статуса -->
+          <div class="batch-status">
+            <span class="status-dot" :class="getStatusClass(batch.id)"></span>
+            <span>{{ batchStatuses[batch.id] || 'Загрузка...' }}</span>
+          </div>
+        </div>
         </div>
         <div v-if="isAdmin" class="batch-admin-actions">
           <button @click.stop="openAssignModal(batch)" class="btn-assign">
@@ -37,14 +43,14 @@
       @close="showAssignModal = false"
       @assigned="handleBatchAssigned"
     />
-  </div>
 </template>
 
 <script setup>
-import { ref, computed } from 'vue';
+import {ref, computed, onMounted, watch} from 'vue';
 import { useAuthStore } from '@/stores/auth';
 import BatchUploadModal from './BatchUploadModal.vue';
 import BatchAssignmentModal from './BatchAssignmentModal.vue';
+import axios from "axios";
 
 /**
  * Пропсы, которые принимает компонент:
@@ -68,14 +74,32 @@ const isAdmin = computed(() => authStore.role === 'ADMIN');
 const showUploadModal = ref(false);
 const showAssignModal = ref(false);
 const selectedBatchId = ref(null);
-
+const batchStatuses = ref({});
 const formatDate = (dateString) => {
   return new Date(dateString).toLocaleString();
 };
+watch(() => props.batches, (newBatches) => {
+  console.log("📦 Обновленные батчи:", newBatches);
+  newBatches.forEach(batch => fetchBatchStatus(batch.id));
+}, { immediate: true });
 
+onMounted(() => {
+  props.batches.forEach(batch => {
+    fetchBatchStatus(batch.id);
+  });
+});
 const openAssignModal = (batch) => {
   selectedBatchId.value = batch.id;
   showAssignModal.value = true;
+};
+const fetchBatchStatus = async (batchId) => {
+  try {
+    const response = await axios.get(`/api/v1/batch/status?batchId=${batchId}`);
+    batchStatuses.value[batchId] = response.data; // Например, "active" или "inactive"
+  } catch (error) {
+    console.error(`Ошибка при получении статуса для батча ${batchId}:`, error);
+    batchStatuses.value[batchId] = 'unknown'; // Если ошибка
+  }
 };
 
 const handleBatchUploaded = () => {
@@ -87,6 +111,12 @@ const handleBatchUploaded = () => {
 const handleBatchAssigned = () => {
   // You might want to refresh the batch list or update UI
   emit('batchAssigned');
+};
+const getStatusClass = (batchId) => {
+  const status = batchStatuses.value[batchId];
+  if (status === 'active') return 'status-active';
+  if (status === 'inactive') return 'status-inactive';
+  return 'status-unknown'; // Если статус неизвестен
 };
 </script>
 
@@ -172,5 +202,31 @@ button {
 
 .btn-assign:hover {
   background-color: #1e88e5;
+}
+.batch-status {
+  display: flex;
+  align-items: center;
+  font-size: 14px;
+  margin-top: 5px;
+}
+
+.status-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  margin-right: 5px;
+}
+
+/* Статусы */
+.status-active {
+  background-color: green;
+}
+
+.status-inactive {
+  background-color: gray;
+}
+
+.status-unknown {
+  background-color: orange;
 }
 </style>

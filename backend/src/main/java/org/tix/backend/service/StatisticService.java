@@ -2,8 +2,10 @@ package org.tix.backend.service;
 
 import org.springframework.stereotype.Service;
 import org.tix.backend.dto.stat.AdminPageStatisticDTO;
+import org.tix.backend.dto.stat.AssessorStatisticDTO;
 import org.tix.backend.model.Batch;
 import org.tix.backend.model.Task;
+import org.tix.backend.model.User;
 import org.tix.backend.repository.BatchRepository;
 import org.tix.backend.repository.TaskRepository;
 import org.tix.backend.repository.UserMarkupRepository;
@@ -36,10 +38,20 @@ public class StatisticService {
         int completedTask = taskList.stream().mapToInt(Task::getCurrentOverlaps).sum();
 
         Double percentOfCompletedTasks = Math.min(100.0, (completedTask * 100.0 / taskByOverlaps));
+        if (percentOfCompletedTasks == 100.0) {
+            batch.setIsActive(false);
+            batchRepository.save(batch);
+        }
         DecimalFormat decimalFormat = new DecimalFormat("#.##");
 
         adminPageStatisticDTO.setPercentOfCompletedTasks(decimalFormat.format(percentOfCompletedTasks));
         return adminPageStatisticDTO;
+    }
+
+    public AssessorStatisticDTO getAssessorStatistic(Long userId){
+        AssessorStatisticDTO assessorStatisticDTO = new AssessorStatisticDTO();
+        User user = userRepository.findById(userId).orElseThrow();
+        return assessorStatisticDTO;
     }
 
 }

@@ -52,6 +52,7 @@ public class UserMarkupService {
         Map<String, String> finalMarkup = calculateFinalMarkup(taskId);
         task.setIsFinished(true);
         task.setFinalMarkup(finalMarkup.toString());
+
         taskRepository.save(task);
     }
 

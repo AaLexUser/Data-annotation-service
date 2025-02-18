@@ -38,5 +38,10 @@ public class BatchController {
     public ResponseEntity<?> showAllForAssessor(@RequestParam Long userId) {
         return ResponseEntity.ok(batchService.getAllBatchesForAssessor(userId));
     }
+    @GetMapping("/status")
+    public ResponseEntity<?> getBatchStatus(@RequestParam Long batchId) {
+        String status = batchService.getBatchStatus(batchId);
+        return ResponseEntity.ok(status);
+    }
 
 }
