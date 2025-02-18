@@ -52,29 +52,13 @@ const router = createRouter({
 
 router.beforeEach((to, from, next) => {
   const authStore = useAuthStore();
-  
-  // Allow access to login page
-  if (to.path === '/login') {
-    if (authStore.isAuthenticated) {
-      return next(authStore.user?.role === 'ADMIN' ? '/admin' : '/assessor');
-    }
-    return next();
+  if (to.meta.requiresAuth && !authStore.isAuthenticated) {
+      next('/login');
+  } else if (to.meta.role && authStore.role !== to.meta.role) {
+      next('/login'); // Перенаправляем, если нет прав доступа
+  } else {
+      next();
   }
-
-  // Check if route requires authentication
-  if (to.matched.some(record => record.meta.requiresAuth)) {
-    if (!authStore.isAuthenticated) {
-      return next('/login');
-    }
-
-    // Check role-based access
-    const userRole = authStore.user?.role;
-    if (to.meta.roles && !to.meta.roles.includes(userRole)) {
-      return next(userRole === 'ADMIN' ? '/admin' : '/assessor');
-    }
-  }
-
-  next();
 });
 
 export default router;
