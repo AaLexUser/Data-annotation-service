@@ -2,6 +2,7 @@ package org.tix.backend.config;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.NonNull;
@@ -31,22 +32,52 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         this.userService = userService;
     }
 
+    private String extractTokenFromCookies(HttpServletRequest request) {
+        {
+            if (request.getCookies() != null) {
+                for (Cookie cookie : request.getCookies()) {
+                    System.out.println("🔍 Кука: " + cookie.getName() + " = " + cookie.getValue()); // Логируем все куки
+                    if ("access_token".equals(cookie.getName())) { // Ищем куку с токеном
+                        System.out.println("✅ Найден access_token: " + cookie.getValue());
+                        return cookie.getValue();
+                    }
+                }
+            }
+            System.out.println(" access_token не найден в куках!");
+            return null;
+        }
+    }
+
     @Override
     protected void doFilterInternal(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response, @NonNull FilterChain filterChain) throws ServletException, IOException {
-        var authHeader = request.getHeader(HEADER_NAME);
-        if (StringUtils.isEmpty(authHeader) || !StringUtils.startsWith(authHeader, BEARER_PREFIX)) {
+        // 1. Достаём JWT из куков
+        var jwt = extractTokenFromCookies(request);
+
+// 2. Если нет в куке, пробуем заголовок Authorization
+        if (StringUtils.isEmpty(jwt)) {
+            var authHeader = request.getHeader("Authorization");
+            if (StringUtils.isNotEmpty(authHeader) && authHeader.startsWith("Bearer ")) {
+                jwt = authHeader.substring(7);
+            }
+        }
+
+// 3. Если токен не найден, пропускаем запрос дальше
+        if (StringUtils.isEmpty(jwt)) {
+            System.out.println("Токен не найден ни в куке, ни в заголовке!");
             filterChain.doFilter(request, response);
             return;
         }
 
-        var jwt = authHeader.substring(BEARER_PREFIX.length());
+        // 4. Извлекаем имя пользователя из токена
         var username = jwtService.extractUserName(jwt);
 
+        // 5. Проверяем, есть ли уже аутентификация в SecurityContext
         if (StringUtils.isNotEmpty(username) && SecurityContextHolder.getContext().getAuthentication() == null) {
             UserDetails userDetails = userService
                     .userDetailsService()
                     .loadUserByUsername(username);
 
+            // 6. Проверяем валидность токена
             if (jwtService.isTokenValid(jwt, userDetails)) {
                 SecurityContext context = SecurityContextHolder.createEmptyContext();
 
@@ -61,7 +92,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 SecurityContextHolder.setContext(context);
             }
         }
+
+        // 7. Продолжаем выполнение цепочки фильтров
         filterChain.doFilter(request, response);
     }
 }
+
+
 

@@ -1,5 +1,7 @@
 package org.tix.backend.config;
 
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -46,12 +48,12 @@ public class SecurityConfiguration {
                     return corsConfiguration;
                 }))
                 .authorizeHttpRequests(request -> request
+                        .requestMatchers("/api/v1/admin/**").hasAuthority("ROLE_ADMIN")
                         .requestMatchers("/api/v1/user/**").permitAll()
                         .requestMatchers("/api/v1/batch/**").permitAll()
                         .requestMatchers("/api/v1/assessor/**").permitAll()
                         .requestMatchers("/api/v1/markup/**").permitAll()
                         .requestMatchers("/api/v1/stats/**").permitAll()
-                        .requestMatchers( "/api/v1/admin/**").hasAuthority("ADMIN")
                         .anyRequest().authenticated())
                 .sessionManagement(manager -> manager.sessionCreationPolicy(STATELESS))
                 .authenticationProvider(authenticationProvider())
@@ -76,5 +78,6 @@ public class SecurityConfiguration {
             throws Exception {
         return config.getAuthenticationManager();
     }
+
 
 }
