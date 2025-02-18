@@ -1,8 +1,4 @@
 import { createRouter, createWebHistory } from 'vue-router';
-import Login from '@/components/Login.vue';
-import Register from '@/components/Register.vue';
-import AdminPage from '@/components/AdminPage.vue';
-import AssessorPage from '@/components/AssessorPage.vue';
 import { useAuthStore } from '@/stores/auth';
 
 const routes = [

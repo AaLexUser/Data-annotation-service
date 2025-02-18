@@ -15,6 +15,8 @@ import org.tix.backend.util.Role;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import java.util.List;
+
 @Service
 public class UserService {
     private final UserRepository userRepository;
@@ -47,6 +49,19 @@ public class UserService {
         return userRepository.findByLogin(login)
                 .orElseThrow(() -> new UsernameNotFoundException("Пользователь не найден"));
 
+    }
+
+    public List<User> getAllUsers() {
+        return userRepository.findAll();
+    }
+
+    public User getById(Long id) {
+        return userRepository.findById(id)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+    }
+
+    public void deleteUser(Long id) {
+        userRepository.deleteById(id);
     }
 
     public UserDetailsService userDetailsService() {

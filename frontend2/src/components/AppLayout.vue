@@ -16,6 +16,15 @@
           Администратор
         </router-link>
         <router-link 
+          v-if="userRole === 'ADMIN'"
+          to="/users" 
+          class="nav-item" 
+          active-class="active"
+        >
+          <span class="nav-icon">👥</span>
+          Пользователи
+        </router-link>
+        <router-link 
           v-if="userRole === 'ASSESSOR' || userRole === 'ADMIN'"
           to="/assessor" 
           class="nav-item" 
