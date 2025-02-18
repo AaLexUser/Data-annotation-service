@@ -1,98 +1,100 @@
 <template>
-  <div class="admin-container">
-    <div class="header">
-      <h1>Таблица со списком батчей</h1>
-      <div class="header-buttons">
-        <button class="add-markup-btn" @click="openMarkupModal">Создать разметку</button>
-        <button class="add-batch-btn" @click="openUploadModal">Добавить батч</button>
+  <AppLayout>
+    <div class="admin-container">
+      <div class="header">
+        <h1>Таблица со списком батчей</h1>
+        <div class="header-buttons">
+          <button class="add-markup-btn" @click="openMarkupModal">Создать разметку</button>
+          <button class="add-batch-btn" @click="openUploadModal">Добавить батч</button>
+        </div>
       </div>
-    </div>
 
-    <div class="filter-section">
-      <input 
-        v-model="filterType"
-        type="text"
-        placeholder="Возможность фильтрации по типам разметки"
-        class="filter-input"
+      <div class="filter-section">
+        <input 
+          v-model="filterType"
+          type="text"
+          placeholder="Возможность фильтрации по типам разметки"
+          class="filter-input"
+        />
+      </div>
+
+      <table class="batch-table">
+        <thead>
+          <tr>
+            <th>Id Батча</th>
+            <th>Title</th>
+            <th>Тип разметки</th>
+            <th>Количество заданий в батче</th>
+            <th>Процент выполнения</th>
+            <th>Дата и время загрузки</th>
+            <th>Действия</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="batch in filteredBatches" :key="batch.id">
+            <td>{{ batch.id }}</td>
+            <td>{{ batch.name }}</td>
+            <td>{{ batch.format }}</td>
+            <td>{{ batch.taskCount }}</td>
+            <td>{{ batch.completionPercentage }}%</td>
+            <td>{{ formatDate(batch.uploadedAt) }}</td>
+            <td>
+              <button 
+                class="view-markup-btn"
+                @click="viewMarkup(batch.id)"
+                title="Просмотреть разметку"
+              >
+                <span class="icon">👁</span>
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <BatchUploadModal 
+        :is-open="isUploadModalOpen"
+        @close="closeUploadModal"
+        @batch-uploaded="handleBatchUploaded"
       />
-    </div>
 
-    <table class="batch-table">
-      <thead>
-        <tr>
-          <th>Id Батча</th>
-          <th>Title</th>
-          <th>Тип разметки</th>
-          <th>Количество заданий в батче</th>
-          <th>Процент выполнения</th>
-          <th>Дата и время загрузки</th>
-          <th>Действия</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr v-for="batch in filteredBatches" :key="batch.id">
-          <td>{{ batch.id }}</td>
-          <td>{{ batch.name }}</td>
-          <td>{{ batch.format }}</td>
-          <td>{{ batch.taskCount }}</td>
-          <td>{{ batch.completionPercentage }}%</td>
-          <td>{{ formatDate(batch.uploadedAt) }}</td>
-          <td>
-            <button 
-              class="view-markup-btn"
-              @click="viewMarkup(batch.id)"
-              title="Просмотреть разметку"
-            >
-              <span class="icon">👁</span>
-            </button>
-          </td>
-        </tr>
-      </tbody>
-    </table>
+      <MarkupCreator
+        v-if="isMarkupModalOpen"
+        @close="closeMarkupModal"
+      />
 
-    <BatchUploadModal 
-      :is-open="isUploadModalOpen"
-      @close="closeUploadModal"
-      @batch-uploaded="handleBatchUploaded"
-    />
-
-    <MarkupCreator
-      v-if="isMarkupModalOpen"
-      @close="closeMarkupModal"
-    />
-
-    <div v-if="isViewMarkupModalOpen" class="modal-overlay">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h2>Разметка для батча</h2>
-          <button class="close-btn" @click="closeViewMarkupModal">&times;</button>
-        </div>
-        <div class="modal-body">
-          <div v-if="currentMarkup">
-            <div class="markup-group">
-              <h3>Radio Buttons</h3>
-              <ul class="markup-list">
-                <li v-for="(type, value) in radioItems" :key="value">
-                  {{ value }}
-                </li>
-              </ul>
-            </div>
-            <div class="markup-group">
-              <h3>Checkboxes</h3>
-              <ul class="markup-list">
-                <li v-for="(type, value) in checkboxItems" :key="value">
-                  {{ value }}
-                </li>
-              </ul>
-            </div>
+      <div v-if="isViewMarkupModalOpen" class="modal-overlay">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h2>Разметка для батча</h2>
+            <button class="close-btn" @click="closeViewMarkupModal">&times;</button>
           </div>
-          <div v-else class="no-markup">
-            Разметка не найдена
+          <div class="modal-body">
+            <div v-if="currentMarkup">
+              <div class="markup-group">
+                <h3>Radio Buttons</h3>
+                <ul class="markup-list">
+                  <li v-for="(type, value) in radioItems" :key="value">
+                    {{ value }}
+                  </li>
+                </ul>
+              </div>
+              <div class="markup-group">
+                <h3>Checkboxes</h3>
+                <ul class="markup-list">
+                  <li v-for="(type, value) in checkboxItems" :key="value">
+                    {{ value }}
+                  </li>
+                </ul>
+              </div>
+            </div>
+            <div v-else class="no-markup">
+              Разметка не найдена
+            </div>
           </div>
         </div>
       </div>
     </div>
-  </div>
+  </AppLayout>
 </template>
 
 <script setup>
@@ -102,6 +104,7 @@ import { useRouter } from 'vue-router';
 import axios from 'axios';
 import BatchUploadModal from './BatchUploadModal.vue';
 import MarkupCreator from './MarkupCreator.vue';
+import AppLayout from './AppLayout.vue';
 
 // Types
 const BatchType = {
@@ -289,9 +292,11 @@ onMounted(() => {
 
 <style scoped>
 .admin-container {
-  padding: 24px;
-  max-width: 1200px;
-  margin: 0 auto;
+  padding: 2rem;
+  background-color: white;
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  margin-bottom: 24px;
 }
 
 .header {
