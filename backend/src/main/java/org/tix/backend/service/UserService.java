@@ -1,17 +1,26 @@
 package org.tix.backend.service;
 
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+import org.tix.backend.dto.AssessorDTO;
+import org.tix.backend.dto.mapper.AssessorMapper;
 import org.tix.backend.model.User;
 import org.tix.backend.repository.UserRepository;
+import org.tix.backend.util.Role;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class UserService {
     private final UserRepository userRepository;
+    private final AssessorMapper assessorMapper;
 
-    public UserService(UserRepository userRepository) {
+    public UserService(UserRepository userRepository, AssessorMapper assessorMapper) {
         this.userRepository = userRepository;
+        this.assessorMapper = assessorMapper;
     }
 
     public User save(User user) {
@@ -42,5 +51,9 @@ public class UserService {
 
     public Long countUsers() {
         return userRepository.count();
+    }
+
+    public List<AssessorDTO> getAllAssessors() {
+        return userRepository.findAllByRole(Role.ASSESSOR).orElseThrow().stream().map(assessorMapper::toAssessorDTO).collect(Collectors.toList());
     }
 }

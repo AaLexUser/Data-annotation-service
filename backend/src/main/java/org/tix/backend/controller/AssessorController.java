@@ -27,13 +27,10 @@ public class AssessorController {
     }
 
     @GetMapping("/tasks")
-    public ResponseEntity<List<TaskDTO>> getTasks(
-
-            @RequestParam("batchId") Long batchId
-
-    ) {
+    public ResponseEntity<List<TaskDTO>> getTasks(@RequestParam("batchId") Long batchId) {
         List<TaskDTO> tasks = taskService.getAvailableTasksForAssessor(batchId);
         return ResponseEntity.ok(tasks);
     }
+
 
 }

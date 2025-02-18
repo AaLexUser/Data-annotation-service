@@ -16,6 +16,8 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.tix.backend.service.UserService;
+import org.tix.backend.util.Role;
+
 import static org.springframework.security.config.http.SessionCreationPolicy.STATELESS;
 
 import java.util.List;
@@ -48,7 +50,7 @@ public class SecurityConfiguration {
                         .requestMatchers("/api/v1/batch/**").permitAll()
                         .requestMatchers("/api/v1/assessor/**").permitAll()
                         .requestMatchers("/api/v1/markup/**").permitAll()
-                        .requestMatchers( "/admin/**").hasRole("ADMIN")
+                        .requestMatchers( "/api/v1/admin/**").hasRole("ADMIN")
                         .anyRequest().authenticated())
                 .sessionManagement(manager -> manager.sessionCreationPolicy(STATELESS))
                 .authenticationProvider(authenticationProvider())
