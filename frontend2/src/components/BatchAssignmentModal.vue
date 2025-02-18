@@ -69,7 +69,7 @@ const loading = ref(true);
 
 const fetchAssessors = async () => {
   try {
-    const response = await axios.get('/api/v1/admin/assessor/all');
+    const response = await axios.get('/api/v1/admin/assessor/all', { withCredentials: true });
     assessors.value = response.data;
     filteredAssessors.value = response.data;
     loading.value = false;
@@ -96,7 +96,7 @@ const assignBatch = async () => {
     await axios.post('/api/v1/admin/batch/assign', {
       batchId: props.batchId,
       assessorIds: selectedAssessors.value
-    });
+    }, { withCredentials: true });
     emit('assigned');
     emit('close');
   } catch (error) {

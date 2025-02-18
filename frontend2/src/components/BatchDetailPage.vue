@@ -98,7 +98,7 @@ const scoreFilter = ref('');
 
 const fetchPackageDetails = async () => {
   try {
-    const response = await axios.get('/api/v1/batch/details');
+    const response = await axios.get('/api/v1/batch/details', { withCredentials: true });
     packageName.value = response.data.name;
     packageStatus.value = response.data.status;
     packageDetails.value = response.data.details;
@@ -110,7 +110,7 @@ const fetchPackageDetails = async () => {
 
 const savePackageName = async () => {
   try {
-    await axios.post('/api/v1/package/update-name', {name: packageName.value});
+    await axios.post('/api/v1/package/update-name', {name: packageName.value}, { withCredentials: true });
   } catch (error) {
     console.error('Error saving package name:', error);
   }
@@ -151,7 +151,7 @@ function goToTask(taskId) {
 const togglePackageStatus = async () => {
   try {
     const newStatus = packageStatus.value ? "active" : "inactive";
-    await axios.post(`/api/v1/batch/${batch.value.id}/toggle-status`, { status: newStatus });
+    await axios.post(`/api/v1/batch/${batch.value.id}/toggle-status`, { status: newStatus }, { withCredentials: true });
     console.log(`✅ Статус батча обновлён: ${newStatus}`);
   } catch (error) {
     console.error('❌ Ошибка при изменении статуса батча:', error);
@@ -160,7 +160,7 @@ const togglePackageStatus = async () => {
 };
 const fetchBatchStatus = async () => {
   try {
-    const response = await axios.get(`/api/v1/batch/${batch.value.id}/status`);
+    const response = await axios.get(`/api/v1/batch/${batch.value.id}/status`, { withCredentials: true });
     packageStatus.value = response.data.status === "active"; // Если "active", ставим true
   } catch (error) {
     console.error('Ошибка при получении статуса батча:', error);

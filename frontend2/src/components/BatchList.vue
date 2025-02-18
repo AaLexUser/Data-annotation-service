@@ -94,7 +94,7 @@ const openAssignModal = (batch) => {
 };
 const fetchBatchStatus = async (batchId) => {
   try {
-    const response = await axios.get(`/api/v1/batch/status?batchId=${batchId}`);
+    const response = await axios.get(`/api/v1/batch/status?batchId=${batchId}`, { withCredentials: true });
     batchStatuses.value[batchId] = response.data; // Например, "active" или "inactive"
   } catch (error) {
     console.error(`Ошибка при получении статуса для батча ${batchId}:`, error);
