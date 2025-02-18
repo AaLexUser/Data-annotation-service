@@ -32,13 +32,9 @@ public class UserService {
     }
 
     public User create(User user) {
-//        if (userRepository.existsByUsername((user.getUsername())) {
-//            throw new RuntimeException("Пользователь с таким именем уже существует");
-//        }
-//
-//        if (userRepository.existsByEmail((user.getEmail())) {
-//            throw new RuntimeException("Пользователь с таким email уже существует");
-//        }
+            if (userRepository.existsByLogin((user.getUsername()))) {
+            throw new RuntimeException("Пользователь с таким именем уже существует");
+        }
 
         return save(user);
     }
