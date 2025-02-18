@@ -49,6 +49,19 @@ public class UserService {
 
     }
 
+    public List<User> getAllUsers() {
+        return userRepository.findAll();
+    }
+
+    public User getById(Long id) {
+        return userRepository.findById(id)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+    }
+
+    public void deleteUser(Long id) {
+        userRepository.deleteById(id);
+    }
+
     public UserDetailsService userDetailsService() {
         return this::getByLogin;
     }

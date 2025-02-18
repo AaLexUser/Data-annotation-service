@@ -11,6 +11,8 @@ import org.tix.backend.dto.auth.SignUpRequest;
 import org.tix.backend.model.User;
 import org.tix.backend.util.Role;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class AuthService {
@@ -19,6 +21,26 @@ public class AuthService {
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
 
+    public List<User> getAllUsers() {
+        return userService.getAllUsers();
+    }
+
+    public void updateUser(Long id, SignUpRequest request) {
+        User user = userService.getById(id);
+        user.setLogin(request.getUsername());
+        if (!request.getPassword().isEmpty()) {
+            user.setPassword(passwordEncoder.encode(request.getPassword()));
+        }
+        userService.save(user);
+    }
+
+    public void deleteUser(Long id) {
+        User user = userService.getById(id);
+        if (user.getRole() == Role.ADMIN) {
+            throw new RuntimeException("Cannot delete admin user");
+        }
+        userService.deleteUser(id);
+    }
 
     public JwtAuthenticationResponse signIn(SignInRequest request) {
         authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(

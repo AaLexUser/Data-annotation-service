@@ -46,7 +46,6 @@ const batchMarkup = ref(null);
 /** Получаем все батчи */
 async function fetchBatches() {
   try {
-
     const response = await axios.get(`/api/v1/batch/for-assessor?userId=${authStore.user.id}`, { withCredentials: true });
     batches.value = response.data;
   } catch (error) {

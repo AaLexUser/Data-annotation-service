@@ -3,6 +3,7 @@ import Login from '@/components/Login.vue';
 import Register from '@/components/Register.vue';
 import AdminPage from '@/components/AdminPage.vue';
 import AssessorPage from '@/components/AssessorPage.vue';
+import UserManagementPage from '@/components/UserManagementPage.vue';
 import { useAuthStore } from '@/stores/auth';
 
 const routes = [
@@ -42,7 +43,15 @@ const routes = [
       roles: ['ADMIN']
     }
   },
-
+  {
+    path: '/users',
+    name: 'Users',
+    component: () => import('@/components/UserManagementPage.vue'),
+    meta: {
+      requiresAuth: true,
+      roles: ['ADMIN']
+    }
+  }
 ];
 
 const router = createRouter({
@@ -53,11 +62,11 @@ const router = createRouter({
 router.beforeEach((to, from, next) => {
   const authStore = useAuthStore();
   if (to.meta.requiresAuth && !authStore.isAuthenticated) {
-      next('/login');
-  } else if (to.meta.role && authStore.role !== to.meta.role) {
-      next('/login'); // Перенаправляем, если нет прав доступа
+    next('/login');
+  } else if (to.meta.roles && !to.meta.roles.includes(authStore.user.role)) {
+    next('/login'); // Redirect if user doesn't have required role
   } else {
-      next();
+    next();
   }
 });
 

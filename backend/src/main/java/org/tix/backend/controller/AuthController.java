@@ -39,6 +39,23 @@ public class AuthController {
 
     }
 
+    @GetMapping("/all")
+    public ResponseEntity<?> getAllUsers() {
+        return ResponseEntity.ok(authService.getAllUsers());
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<?> updateUser(@PathVariable Long id, @RequestBody SignUpRequest request) {
+        authService.updateUser(id, request);
+        return ResponseEntity.ok().build();
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> deleteUser(@PathVariable Long id) {
+        authService.deleteUser(id);
+        return ResponseEntity.ok().build();
+    }
+
     private void setCookieForResponse(String jwt,HttpServletResponse response){
         Cookie cookie = new Cookie("access_token", jwt);
         cookie.setHttpOnly(true);

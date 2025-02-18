@@ -24,6 +24,15 @@
           <span class="nav-icon">✍️</span>
           Асессор
         </router-link>
+        <router-link 
+          v-if="authStore.isAdmin"
+          to="/users" 
+          class="nav-item" 
+          active-class="active"
+        >
+          <span class="nav-icon">👥</span>
+          Пользователи
+        </router-link>
       </nav>
 
       <div class="user-section">
