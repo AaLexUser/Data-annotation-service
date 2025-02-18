@@ -55,10 +55,14 @@ const routes = [
     }
   },
   {
-    path: '/batch/:id',
+    path: '/batch-detail', // Здесь указываем путь без `params`
     name: 'BatchDetail',
-    component: BatchDetailPage,
-    props: true
+    component:()  => import('@/components/BatchDetailPage.vue'),
+    meta: {
+        requiresAuth: true,
+        roles: ['ADMIN']
+
+}
   }
 ];
 

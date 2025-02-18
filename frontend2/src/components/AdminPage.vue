@@ -10,70 +10,70 @@
       </div>
 
       <div class="filter-section">
-        <input 
-          v-model="filterType"
-          type="text"
-          placeholder="Возможность фильтрации по типам разметки"
-          class="filter-input"
+        <input
+            v-model="filterType"
+            type="text"
+            placeholder="Возможность фильтрации по типам разметки"
+            class="filter-input"
         />
       </div>
 
       <table class="batch-table">
         <thead>
-          <tr>
-            <th>Id Батча</th>
-            <th>Title</th>
-            <th>Тип разметки</th>
-            <th>Количество заданий в батче</th>
-            <th>Процент выполнения</th>
-            <th>Дата и время загрузки</th>
-            <th>Действия</th>
-          </tr>
+        <tr>
+          <th>Id Батча</th>
+          <th>Title</th>
+          <th>Тип разметки</th>
+          <th>Количество заданий в батче</th>
+          <th>Процент выполнения</th>
+          <th>Дата и время загрузки</th>
+          <th>Действия</th>
+        </tr>
         </thead>
         <tbody>
-          <tr v-for="batch in filteredBatches" :key="batch.id">
-            <td>{{ batch.id }}</td>
-            <td>{{ batch.name }}</td>
-            <td>{{ batch.format }}</td>
-            <td>{{ batch.taskCount }}</td>
-            <td>{{ batch.completionPercentage }}%</td>
-            <td>{{ formatDate(batch.uploadedAt) }}</td>
-            <td class="actions-cell">
-              <button 
+        <tr v-for="batch in filteredBatches" :key="batch.id">
+          <td>{{ batch.id }}</td>
+          <td>{{ batch.name }}</td>
+          <td>{{ batch.format }}</td>
+          <td>{{ batch.taskCount }}</td>
+          <td>{{ batch.completionPercentage }}%</td>
+          <td>{{ formatDate(batch.uploadedAt) }}</td>
+          <td class="actions-cell">
+            <button
                 class="view-markup-btn"
                 @click="viewMarkup(batch.id)"
                 title="Просмотреть разметку"
-              >
-                <span class="icon">👁</span>
-              </button>
-              <button 
+            >
+              <span class="icon">👁</span>
+            </button>
+            <button
                 class="assign-btn"
                 @click="openAssignModal(batch)"
                 title="Назначить асессоров"
-              >
-                <span class="icon">👥</span>
-              </button>
-              <button 
+            >
+              <span class="icon">👥</span>
+            </button>
+            <button
                 class="assign-btn"
                 @click="navigateToBatchDetail(batch)"
                 title="Детали"
-              >
-                <span class="icon">⚙️</span>
-              </button>
-            </td>
-          </tr>
+            >
+              <span class="icon">⚙️</span>
+            </button>
+          </td>
+        </tr>
         </tbody>
       </table>
 
-      <BatchUploadModal 
-        :is-open="isUploadModalOpen"
-        @close="closeUploadModal"
-        @batch-uploaded="handleBatchUploaded"
+      <BatchUploadModal
+          :is-open="isUploadModalOpen"
+          @close="closeUploadModal"
+          @batch-uploaded="handleBatchUploaded"
       />
 
       <MarkupCreator
-        v-if="isMarkupModalOpen"
-        @close="closeMarkupModal"
+          v-if="isMarkupModalOpen"
+          @close="closeMarkupModal"
       />
 
       <div v-if="isViewMarkupModalOpen" class="modal-overlay">
@@ -109,19 +109,19 @@
       </div>
 
       <BatchAssignmentModal
-        v-if="showAssignModal"
-        :batchId="selectedBatchId"
-        @close="closeAssignModal"
-        @assigned="handleBatchAssigned"
+          v-if="showAssignModal"
+          :batchId="selectedBatchId"
+          @close="closeAssignModal"
+          @assigned="handleBatchAssigned"
       />
     </div>
   </AppLayout>
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from 'vue';
-import { useAuthStore } from '@/stores/auth';
-import { useRouter } from 'vue-router';
+import {ref, onMounted, computed} from 'vue';
+import {useAuthStore} from '@/stores/auth';
+import {useRouter} from 'vue-router';
 import axios from 'axios';
 import BatchUploadModal from './BatchUploadModal.vue';
 import MarkupCreator from './MarkupCreator.vue';
@@ -149,14 +149,14 @@ function useBatchList() {
 
   const filteredBatches = computed(() => {
     if (!filterType.value) return batches.value;
-    return batches.value.filter(batch => 
-      batch.format.toLowerCase().includes(filterType.value.toLowerCase())
+    return batches.value.filter(batch =>
+        batch.format.toLowerCase().includes(filterType.value.toLowerCase())
     );
   });
 
   const fetchBatches = async () => {
     try {
-      const response = await axios.get('/api/v1/batch/all', { withCredentials: true });
+      const response = await axios.get('/api/v1/batch/all', {withCredentials: true});
       batches.value = response.data;
 
       // После загрузки списка батчей загружаем статистику
@@ -170,7 +170,7 @@ function useBatchList() {
   const fetchBatchStatistics = async (batch) => {
     try {
       const response = await axios.get(`/api/v1/stats/batch-preview`, {
-        params: { batchId: batch.id },
+        params: {batchId: batch.id},
         withCredentials: true
       });
       batch.taskCount = response.data.countOfTasks;
@@ -227,7 +227,7 @@ function useMarkupModal() {
   const isMarkupModalOpen = ref(false);
   const isViewMarkupModalOpen = ref(false);
   const currentMarkup = ref(null);
-  
+
   const openMarkupModal = () => {
     isMarkupModalOpen.value = true;
   };
@@ -260,21 +260,21 @@ function useMarkupModal() {
   const radioItems = computed(() => {
     if (!currentMarkup.value?.elements) return {};
     return Object.entries(currentMarkup.value.elements)
-      .filter(([_, type]) => type === 'radio')
-      .reduce((acc, [value, type]) => {
-        acc[value] = type;
-        return acc;
-      }, {});
+        .filter(([_, type]) => type === 'radio')
+        .reduce((acc, [value, type]) => {
+          acc[value] = type;
+          return acc;
+        }, {});
   });
 
   const checkboxItems = computed(() => {
     if (!currentMarkup.value?.elements) return {};
     return Object.entries(currentMarkup.value.elements)
-      .filter(([_, type]) => type === 'checkbox')
-      .reduce((acc, [value, type]) => {
-        acc[value] = type;
-        return acc;
-      }, {});
+        .filter(([_, type]) => type === 'checkbox')
+        .reduce((acc, [value, type]) => {
+          acc[value] = type;
+          return acc;
+        }, {});
   });
 
   return {
@@ -338,16 +338,16 @@ function useFormatting() {
 }
 
 // Component setup
-const { batches, filterType, filteredBatches, fetchBatches } = useBatchList();
-const { logout } = useAuth();
-const { isUploadModalOpen, openUploadModal, closeUploadModal } = useUploadModal();
-const { 
-  isMarkupModalOpen, 
+const {batches, filterType, filteredBatches, fetchBatches} = useBatchList();
+const {logout} = useAuth();
+const {isUploadModalOpen, openUploadModal, closeUploadModal} = useUploadModal();
+const {
+  isMarkupModalOpen,
   isViewMarkupModalOpen,
   currentMarkup,
   radioItems,
   checkboxItems,
-  openMarkupModal, 
+  openMarkupModal,
   closeMarkupModal,
   viewMarkup,
   closeViewMarkupModal
@@ -359,16 +359,15 @@ const {
   closeAssignModal,
   handleBatchAssigned
 } = useAssignModal();
-const { formatDate } = useFormatting();
+const {formatDate} = useFormatting();
 
 const router = useRouter();
-function navigateToBatchDetail(batch) {
-  console.log('Navigating to BatchDetail with ID:', batch?.id); // Log the batch ID
-  if (batch) {
-    router.push({ name: 'BatchDetail', params: { id: batch.id } });
-  } else {
-    console.error('Batch is undefined');
-  }
+import { useBatchStore } from '@/stores/batchStore';
+
+const batchStore = useBatchStore();
+async function navigateToBatchDetail(batch) {
+  batchStore.setBatch(batch); // Сохраняем батч в глобальном состоянии
+  router.push('/batch-detail');
 }
 
 

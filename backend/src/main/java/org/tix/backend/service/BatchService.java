@@ -1,6 +1,7 @@
 package org.tix.backend.service;
 
 import com.opencsv.CSVReader;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import org.tix.backend.model.Batch;
@@ -16,6 +17,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class BatchService {
@@ -81,5 +83,23 @@ public class BatchService {
         Batch batch = batchRepository.findById(batchId)
                 .orElseThrow(() -> new RuntimeException("Batch not found"));
         return batch.getIsActive() ? "active" : "inactive";
+    }
+
+    public String toggleBatchStatus(Long batchId, String newStatus) {
+        Batch batch = batchRepository.findById(batchId)
+                .orElseThrow(() -> new RuntimeException("Batch not found"));
+
+        if (!newStatus.equals("active") && !newStatus.equals("inactive")) {
+            throw new IllegalArgumentException("Invalid status value: " + newStatus);
+        }
+
+        batch.setIsActive(newStatus.equals("active"));
+        batchRepository.save(batch);
+
+        return batch.getIsActive() ? "active" : "inactive";
+    }
+
+    public ResponseEntity<?> getCurrentStatus(Long batchId) {
+        return ResponseEntity.ok(Map.of("status", batchRepository.findById(batchId).orElseThrow().getIsActive() ? "active" : "inactive"));
     }
 }
