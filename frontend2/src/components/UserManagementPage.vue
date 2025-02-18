@@ -29,7 +29,7 @@
         <tbody>
           <tr v-for="user in filteredUsers" :key="user.id">
             <td>{{ user.id }}</td>
-            <td>{{ user.login }}</td>
+            <td>{{ user.username }}</td>
             <td>
               <span :class="['role-badge', user.role.toLowerCase()]">
                 {{ user.role }}
@@ -66,10 +66,10 @@
           <div class="modal-body">
             <form @submit.prevent="handleSubmit">
               <div class="form-group">
-                <label for="login">Логин</label>
+                <label for="username">Логин</label>
                 <input 
-                  id="login"
-                  v-model="userForm.login"
+                  id="username"
+                  v-model="userForm.username"
                   type="text"
                   required
                   :disabled="editingUser"
@@ -128,7 +128,7 @@
             <button class="close-btn" @click="showDeleteConfirm = false">&times;</button>
           </div>
           <div class="modal-body">
-            <p>Вы уверены, что хотите удалить пользователя "{{ userToDelete?.login }}"?</p>
+            <p>Вы уверены, что хотите удалить пользователя "{{ userToDelete?.username }}"?</p>
             <div class="form-actions">
               <button 
                 class="delete-confirm-btn"
@@ -166,7 +166,7 @@ const isDeleting = ref(false);
 const editingUser = ref(null);
 const userToDelete = ref(null);
 const userForm = ref({
-  login: '',
+  username: '',
   password: '',
   role: 'ASSESSOR'
 });
@@ -176,7 +176,7 @@ const filteredUsers = computed(() => {
   if (!searchQuery.value) return users.value;
   const query = searchQuery.value.toLowerCase();
   return users.value.filter(user => 
-    user.login.toLowerCase().includes(query) ||
+    user.username.toLowerCase().includes(query) ||
     user.role.toLowerCase().includes(query)
   );
 });
@@ -194,7 +194,7 @@ const fetchUsers = async () => {
 const openCreateUserModal = () => {
   editingUser.value = null;
   userForm.value = {
-    login: '',
+    username: '',
     password: '',
     role: 'ASSESSOR'
   };
@@ -204,7 +204,7 @@ const openCreateUserModal = () => {
 const openEditUserModal = (user) => {
   editingUser.value = user;
   userForm.value = {
-    login: user.login,
+    username: user.username,
     password: '',
     role: user.role
   };
@@ -215,7 +215,7 @@ const closeUserModal = () => {
   isUserModalOpen.value = false;
   editingUser.value = null;
   userForm.value = {
-    login: '',
+    username: '',
     password: '',
     role: 'ASSESSOR'
   };
