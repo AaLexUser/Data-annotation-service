@@ -115,6 +115,10 @@ const BatchType = {
   completionPercentage: Number,
   uploadedAt: String
 };
+const BatchStatistic = {
+  taskCount: String,
+  completionPercentage: String
+}
 
 // Composables
 function useBatchList() {
@@ -132,10 +136,30 @@ function useBatchList() {
     try {
       const response = await axios.get('/api/v1/batch/all', { withCredentials: true });
       batches.value = response.data;
+
+      // После загрузки списка батчей загружаем статистику
+      for (const batch of batches.value) {
+        await fetchBatchStatistics(batch);
+      }
     } catch (error) {
-      console.error('Error fetching batches:', error);
+      console.error('Ошибка при загрузке батчей:', error);
     }
   };
+  const fetchBatchStatistics = async (batch) => {
+    try {
+      const response = await axios.get(`/api/v1/stats/batch-preview`, {
+        params: { batchId: batch.id },
+        withCredentials: true
+      });
+      batch.taskCount = response.data.countOfTasks;
+      batch.completionPercentage = response.data.percentOfCompletedTasks;
+    } catch (error) {
+      console.error(`Ошибка при загрузке статистики для batchId=${batch.id}:`, error);
+      batch.taskCount = 'N/A'; // Подставляем заглушку в случае ошибки
+      batch.completionPercentage = 'N/A';
+    }
+  };
+
 
   return {
     batches,
