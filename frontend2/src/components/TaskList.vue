@@ -1,76 +1,88 @@
 <template>
   <div class="task-list-page">
-    <button class="back-button" @click="$emit('back')">
-      ← Назад к выбору батча
-    </button>
-    <h2>Батч: {{ batchName }}</h2>
+    <div class="main-content" :class="{ 'sidebar-open': isSidebarOpen }">
+      <button class="back-button" @click="$emit('back')">
+        ← Назад к выбору батча
+      </button>
+      <h2>Батч: {{ batchName }}</h2>
 
-    <div class="task-container">
-      <div v-if="currentTask" class="task-content">
-        <h3>Задача №{{ currentTask.id }}</h3>
+      <div class="task-container">
+        <div v-if="currentTask" class="task-content">
+          <h3>Задача №{{ currentTask.id }}</h3>
 
-        <!-- Определяем, какой тип данных отображать -->
-        <div v-if="taskData.isSingleColumn">
-          <!-- Одиночные элементы (если нет xxx1 и xxx2) -->
-          <div class="single-col" v-for="pair in taskData.pairs" :key="pair.keyBase">
-            <template v-if="pair.keyBase.toLowerCase().includes('photo')">
-              <div class="single-photo">
-                <img :src="pair.value1" :alt="pair.keyBase" class="photo-img" />
-              </div>
-            </template>
-            <template v-else>
-              <div class="single-text">
-                <strong>{{ pair.key1 }}:</strong> {{ pair.value1 }}
-              </div>
-            </template>
+          <!-- Определяем, какой тип данных отображать -->
+          <div v-if="taskData.isSingleColumn">
+            <!-- Одиночные элементы (если нет xxx1 и xxx2) -->
+            <div class="single-col" v-for="pair in taskData.pairs" :key="pair.keyBase">
+              <template v-if="pair.keyBase.toLowerCase().includes('photo')">
+                <div class="single-photo">
+                  <img :src="pair.value1" :alt="pair.keyBase" class="photo-img" />
+                </div>
+              </template>
+              <template v-else>
+                <div class="single-text">
+                  <strong>{{ pair.key1 }}:</strong> {{ pair.value1 }}
+                </div>
+              </template>
+            </div>
+          </div>
+
+          <div v-else>
+            <!-- Парные элементы -->
+            <div class="pair-row" v-for="pair in taskData.pairs" :key="pair.keyBase">
+              <template v-if="pair.keyBase.toLowerCase().includes('photo')">
+                <div class="pair-col">
+                  <img :src="pair.value1" alt="photo1" class="photo-img" />
+                </div>
+                <div class="pair-col">
+                  <img :src="pair.value2" alt="photo2" class="photo-img" />
+                </div>
+              </template>
+              <template v-else>
+                <div class="pair-col">
+                  <strong>{{ pair.key1 }}:</strong> {{ pair.value1 }}
+                </div>
+                <div class="pair-col">
+                  <strong>{{ pair.key2 }}:</strong> {{ pair.value2 }}
+                </div>
+              </template>
+            </div>
           </div>
         </div>
 
-        <div v-else>
-          <!-- Парные элементы -->
-          <div class="pair-row" v-for="pair in taskData.pairs" :key="pair.keyBase">
-            <template v-if="pair.keyBase.toLowerCase().includes('photo')">
-              <div class="pair-col">
-                <img :src="pair.value1" alt="photo1" class="photo-img" />
-              </div>
-              <div class="pair-col">
-                <img :src="pair.value2" alt="photo2" class="photo-img" />
-              </div>
-            </template>
-            <template v-else>
-              <div class="pair-col">
-                <strong>{{ pair.key1 }}:</strong> {{ pair.value1 }}
-              </div>
-              <div class="pair-col">
-                <strong>{{ pair.key2 }}:</strong> {{ pair.value2 }}
-              </div>
-            </template>
-          </div>
+        <div v-else class="task-empty">
+          <p>Все задания в этом батче аннотированы или индекс вне диапазона.</p>
         </div>
-
-        <div class="nav-buttons">
-          <button @click="prevTask" :disabled="currentIndex === 0">
-            Предыдущая
-          </button>
-          <button @click="nextTask" :disabled="currentIndex === tasks.length - 1">
-            Следующая
-          </button>
-        </div>
-      </div>
-
-      <div v-else class="task-empty">
-        <p>Все задания в этом батче аннотированы или индекс вне диапазона.</p>
       </div>
     </div>
 
-    <DynamicMarkup
-        v-if="batchMarkup"
-        class="markup-container"
+    <button 
+      class="sidebar-toggle" 
+      :class="{ 'open': isSidebarOpen }"
+      @click="toggleSidebar"
+    >
+      {{ isSidebarOpen ? '→' : '←' }}
+    </button>
+
+    <div v-if="batchMarkup && currentTask" 
+         class="markup-container"
+         :class="{ 'open': isSidebarOpen }">
+      <DynamicMarkup
         :markup="batchMarkup"
-        :assessor-id = "assessorId"
-        :task-id = "currentTask.id"
+        :assessor-id="assessorId"
+        :task-id="currentTask.id"
+        :is-educational="isEducational"
         @submitted="handleMarkupSubmitted"
-    />
+      />
+      <div class="nav-buttons">
+        <button @click="prevTask" :disabled="currentIndex === 0">
+          Предыдущая
+        </button>
+        <button @click="nextTask" :disabled="currentIndex === tasks.length - 1">
+          Следующая
+        </button>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -79,7 +91,7 @@
 import { ref, computed } from 'vue';
 import DynamicMarkup from '@/components/DynamicMarkup.vue';
 
-const { tasks, batchName, assessorId, batchMarkup } = defineProps({
+const { tasks, batchName, assessorId, batchMarkup, isEducational } = defineProps({
   tasks: {
     type: Array,
     default: () => []
@@ -95,9 +107,13 @@ const { tasks, batchName, assessorId, batchMarkup } = defineProps({
   assessorId:{
     type: Number,
     default: null
+  },
+  isEducational: {
+    type: Boolean,
+    default: false
   }
 });
-const emit = defineEmits(['back']);
+const emit = defineEmits(['back', 'submitted']);
 
 const currentIndex = ref(0);
 
@@ -118,8 +134,12 @@ function nextTask() {
 }
 
 function handleMarkupSubmitted(payload) {
-  console.log('Сабмит динамического маркапа:', payload);
-  // здесь ваша логика, если нужно
+  console.log('Markup submitted:', payload);
+  emit('submitted', payload);
+  // After submission, automatically move to next task if available
+  if (currentIndex.value < tasks.length - 1) {
+    nextTask();
+  }
 }
 const taskData = computed(() => {
   return currentTask.value ? getPairs(currentTask.value.rowFromBatch) : { isSingleColumn: false, pairs: [] };
@@ -173,98 +193,206 @@ function getPairs(row) {
     pairs: Object.values(pairsMap)
   };
 }
+
+const isSidebarOpen = ref(true);
+
+function toggleSidebar() {
+  isSidebarOpen.value = !isSidebarOpen.value;
+}
 </script>
 
 <style scoped>
 /* Контейнер всей страницы TaskList */
 .task-list-page {
   display: flex;
+  width: 100%;
+  height: calc(100vh - 180px);
+  gap: 1.5rem;
+  padding: 1rem;
+  position: relative;
+}
+
+.main-content {
+  flex: 1;
+  display: flex;
   flex-direction: column;
-  height: 100vh;
+  overflow: hidden;
+  padding-right: 20px;
+  transition: padding-right 0.3s ease;
+}
 
-  /*width: 100%;
-
-  /* Можно добавить min-height, если нужно */
-  /* min-height: 100vh; */
+.main-content.sidebar-open {
+  padding-right: 520px;
 }
 
 .back-button {
   background: none;
   border: none;
-  color: #007bff;
+  color: #4f46e5;
   cursor: pointer;
-  font-size: 16px;
-  margin-bottom: 10px;
+  font-size: 1rem;
+  padding: 0.5rem 1rem;
+  display: inline-flex;
+  align-items: center;
+  transition: color 0.2s ease;
 }
+
 .back-button:hover {
-  text-decoration: underline;
+  color: #4338ca;
 }
 
 /* Область, где показываем задание */
 .task-container {
-  width: 1000px;
-  min-height: 400px;
-  max-height: 80vh;
+  width: 100%;
+  max-width: 1000px;
+  flex: 1;
+  background-color: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin: 0 auto;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
   overflow-y: auto;
-
-  /* Остальное */
-  background-color: #fdfdfd;
-  border: 1px solid #ddd;
-  border-radius: 6px;
-  padding: 16px;
-  margin-bottom: 20px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
 }
 
 .task-content {
   width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
 }
 
 .task-empty {
   text-align: center;
-  width: 100%;
+  padding: 2rem;
+  color: #64748b;
 }
 
 .pair-row {
   display: flex;
-  margin-bottom: 8px;
-}
-.pair-col {
-  flex: 1;
-  padding-right: 10px;
-}
-.photo-img {
-  max-width: 200px;
-  height: 200px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
+  gap: 1.5rem;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
 }
 
-/* Кнопки "Предыдущая" / "Следующая" */
-.nav-buttons {
-  margin-top: 12px;
-  display: flex;
-  gap: 8px;
+.pair-col {
+  flex: 1;
+  min-width: 300px;
+  padding: 1rem;
+  background-color: #f8fafc;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
 }
+
+.photo-img {
+  width: 100%;
+  max-width: 300px;
+  height: 300px;
+  object-fit: cover;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+}
+
+/* Кнопки навигации */
+.nav-buttons {
+  padding: 1rem;
+  background: white;
+  border-top: 1px solid #e2e8f0;
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-top: auto;
+}
+
 .nav-buttons button {
-  padding: 6px 12px;
-  background: #007bff;
+  padding: 0.75rem 1.5rem;
+  background-color: #4f46e5;
   color: white;
   border: none;
-  border-radius: 4px;
+  border-radius: 8px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-width: 120px;
 }
+
+.nav-buttons button:hover:not(:disabled) {
+  background-color: #4338ca;
+  transform: translateY(-1px);
+}
+
 .nav-buttons button:disabled {
-  opacity: 0.5;
+  background-color: #e2e8f0;
   cursor: not-allowed;
 }
 
 /* Контейнер для DynamicMarkup */
 .markup-container {
+  position: fixed;
+  top: 100px;
+  right: -500px; /* Начальное положение за пределами экрана */
+  width: 500px;
+  height: calc(100vh - 120px);
+  overflow-y: auto;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  transition: right 0.3s ease;
+  display: flex;
+  flex-direction: column;
+}
 
-  margin: 0 auto;
-  width: 300px;
-  /* Можно зафиксировать ширину, если надо */
+.markup-container.open {
+  right: 20px;
+}
+
+.sidebar-toggle {
+  position: fixed;
+  top: 120px;
+  right: 20px;
+  width: 40px;
+  height: 40px;
+  border-radius: 20px;
+  background: #4f46e5;
+  color: white;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+  transition: all 0.3s ease;
+}
+
+.sidebar-toggle:hover {
+  background: #4338ca;
+  transform: scale(1.05);
+}
+
+.sidebar-toggle.open {
+  right: 520px;
+}
+
+/* Адаптивный дизайн */
+@media (max-width: 768px) {
+  .task-container {
+    padding: 1rem;
+  }
+
+  .pair-col {
+    min-width: 100%;
+  }
+
+  .photo-img {
+    max-width: 100%;
+    height: 200px;
+  }
+
+  .nav-buttons button {
+    padding: 0.5rem 1rem;
+    min-width: 100px;
+  }
 }
 </style>

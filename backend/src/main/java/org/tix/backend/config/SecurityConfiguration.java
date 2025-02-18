@@ -54,6 +54,7 @@ public class SecurityConfiguration {
                         .requestMatchers("/api/v1/assessor/**").permitAll()
                         .requestMatchers("/api/v1/markup/**").permitAll()
                         .requestMatchers("/api/v1/stats/**").permitAll()
+                        .requestMatchers("/api/v1/educational/**").permitAll()
                         .anyRequest().authenticated())
                 .sessionManagement(manager -> manager.sessionCreationPolicy(STATELESS))
                 .authenticationProvider(authenticationProvider())
@@ -65,6 +66,7 @@ public class SecurityConfiguration {
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
+
     @Bean
     public AuthenticationProvider authenticationProvider() {
         DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
@@ -78,6 +80,4 @@ public class SecurityConfiguration {
             throws Exception {
         return config.getAuthenticationManager();
     }
-
-
 }
