@@ -2,7 +2,7 @@
   <AppLayout>
     <div class="batch-detail-container">
       <div class="header">
-        <h1>Страница пакета</h1>
+        <h1>Страница определенного пакета</h1>
         <div class="header-buttons">
           <button class="export-btn">Экспорт</button>
         </div>
@@ -10,22 +10,24 @@
 
       <div class="batch-info">
         <h2>Название пакета</h2>
-        <input v-model="packageName" @blur="savePackageName" placeholder="Введите название пакета" />
-        <div>
-          <label>
-            <input type="checkbox" v-model="packageStatus" @change="togglePackageStatus" />
-            Включить/Выключить пакет
-          </label>
+        <div class="package-name">
+          <input v-model="packageName" @blur="savePackageName" placeholder="Введите название пакета" />
+        </div>
+        <div class="package-status">
+          <input type="checkbox" v-model="packageStatus" @change="togglePackageStatus" />
+          <span>Включить/Выключить пакет</span>
         </div>
         <p>
           {{ packageDetails }}
         </p>
       </div>
-
+      
       <div class="task-table-section">
-        <h3>Таблица со списком заданий в данном пакете</h3>
-        <p>необходимые фильтры по статусу, финальной оценке и т.д.</p>
-        <br>
+        <h3>Список заданий в данном пакете</h3>
+        <div class="filters">
+          <input v-model="statusFilter" placeholder="Фильтр по статусу" />
+          <input v-model="scoreFilter" placeholder="Фильтр по финальной оценке" />
+        </div>
         <table class="task-table">
           <thead>
             <tr>
@@ -36,7 +38,7 @@
             </tr>
           </thead>
           <tbody>
-            <tr v-for="task in tasks" :key="task.id" @click="goToTask(task.id)">
+            <tr v-for="task in filteredTasks" :key="task.id" @click="goToTask(task.id)">
               <td>{{ task.id }}</td>
               <td>{{ task.title }}</td>
               <td>{{ task.status }}</td>
@@ -50,20 +52,61 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import AppLayout from './AppLayout.vue';
+import axios from 'axios';
 
-const tasks = ref([
-  // Example data
-  { id: 1, title: 'Task 1', status: 'готов', finalScore: 'A' },
-  { id: 2, title: 'Task 2', status: 'частично', finalScore: 'B' },
-  // Add more tasks as needed
-]);
+const packageName = ref('');
+const packageStatus = ref(false);
+const packageDetails = ref('');
+const tasks = ref([]);
+const statusFilter = ref('');
+const scoreFilter = ref('');
+
+const fetchPackageDetails = async () => {
+  try {
+    const response = await axios.get('/api/v1/package/details');
+    packageName.value = response.data.name;
+    packageStatus.value = response.data.status;
+    packageDetails.value = response.data.details;
+    tasks.value = response.data.tasks;
+  } catch (error) {
+    console.error('Error fetching package details:', error);
+  }
+};
+
+const savePackageName = async () => {
+  try {
+    await axios.post('/api/v1/package/update-name', { name: packageName.value });
+  } catch (error) {
+    console.error('Error saving package name:', error);
+  }
+};
+
+const togglePackageStatus = async () => {
+  try {
+    await axios.post('/api/v1/package/toggle-status', { status: packageStatus.value });
+  } catch (error) {
+    console.error('Error toggling package status:', error);
+  }
+};
+
+const filteredTasks = computed(() => {
+  return tasks.value.filter(task => {
+    return (
+      (!statusFilter.value || task.status.includes(statusFilter.value)) &&
+      (!scoreFilter.value || task.finalScore.includes(scoreFilter.value))
+    );
+  });
+});
 
 function goToTask(taskId) {
-  // Logic to navigate to the task detail page
   console.log('Navigating to task:', taskId);
 }
+
+onMounted(() => {
+  fetchPackageDetails();
+});
 </script>
 
 <style scoped>
@@ -74,7 +117,6 @@ function goToTask(taskId) {
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
   margin-bottom: 24px;
 }
-
 
 .header {
   display: flex;
@@ -107,9 +149,24 @@ function goToTask(taskId) {
   font-weight: 500;
 }
 
-
 .export-btn:hover {
   background-color: #4338ca;
+}
+
+
+.package-name {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.package-name input {
+  width: auto;
+  max-width: 300px;
+}
+
+.package-status {
+  max-width: 300px;
 }
 
 .task-table-section {
@@ -155,4 +212,10 @@ function goToTask(taskId) {
   color: #334155;
   font-size: 0.95rem;
 }
-</style> 
+
+.filters {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+</style>
