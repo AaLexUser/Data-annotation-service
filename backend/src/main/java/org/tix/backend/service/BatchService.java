@@ -34,9 +34,9 @@ public class BatchService {
         return batchRepository.findAll();
     }
 
-    public Batch saveBatch(MultipartFile file, Integer overlaps) throws IOException {
+    public Batch saveBatch(MultipartFile file, Integer overlaps, String batchName) throws IOException {
         Batch batch = new Batch();
-        batch.setName(file.getName());
+        batch.setName(batchName);
         batch.setFormat(file.getContentType());
         batch.setIsActive(true);
         batch.setUploadedAt(LocalDateTime.now());

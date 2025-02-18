@@ -1,42 +1,53 @@
 <template>
-  <!-- Основной контейнер страницы -->
   <div class="task-list-page">
-    <!-- Кнопка "Назад" + заголовок -->
     <button class="back-button" @click="$emit('back')">
       ← Назад к выбору батча
     </button>
     <h2>Батч: {{ batchName }}</h2>
 
-    <!-- Контейнер для текущего задания -->
     <div class="task-container">
       <div v-if="currentTask" class="task-content">
         <h3>Задача №{{ currentTask.id }}</h3>
 
-        <!-- Пары ключей -->
-        <div
-            class="pair-row"
-            v-for="pair in getPairs(currentTask.rowFromBatch)"
-            :key="pair.keyBase"
-        >
-          <template v-if="pair.keyBase.toLowerCase().includes('photo')">
-            <div class="pair-col">
-              <img :src="pair.value1" alt="photo1" class="photo-img" />
-            </div>
-            <div class="pair-col">
-              <img :src="pair.value2" alt="photo2" class="photo-img" />
-            </div>
-          </template>
-          <template v-else>
-            <div class="pair-col">
-              <strong>{{ pair.key1 }}:</strong> {{ pair.value1 }}
-            </div>
-            <div class="pair-col">
-              <strong>{{ pair.key2 }}:</strong> {{ pair.value2 }}
-            </div>
-          </template>
+        <!-- Определяем, какой тип данных отображать -->
+        <div v-if="taskData.isSingleColumn">
+          <!-- Одиночные элементы (если нет xxx1 и xxx2) -->
+          <div class="single-col" v-for="pair in taskData.pairs" :key="pair.keyBase">
+            <template v-if="pair.keyBase.toLowerCase().includes('photo')">
+              <div class="single-photo">
+                <img :src="pair.value1" :alt="pair.keyBase" class="photo-img" />
+              </div>
+            </template>
+            <template v-else>
+              <div class="single-text">
+                <strong>{{ pair.key1 }}:</strong> {{ pair.value1 }}
+              </div>
+            </template>
+          </div>
         </div>
 
-        <!-- Навигация "Предыдущая / Следующая" -->
+        <div v-else>
+          <!-- Парные элементы -->
+          <div class="pair-row" v-for="pair in taskData.pairs" :key="pair.keyBase">
+            <template v-if="pair.keyBase.toLowerCase().includes('photo')">
+              <div class="pair-col">
+                <img :src="pair.value1" alt="photo1" class="photo-img" />
+              </div>
+              <div class="pair-col">
+                <img :src="pair.value2" alt="photo2" class="photo-img" />
+              </div>
+            </template>
+            <template v-else>
+              <div class="pair-col">
+                <strong>{{ pair.key1 }}:</strong> {{ pair.value1 }}
+              </div>
+              <div class="pair-col">
+                <strong>{{ pair.key2 }}:</strong> {{ pair.value2 }}
+              </div>
+            </template>
+          </div>
+        </div>
+
         <div class="nav-buttons">
           <button @click="prevTask" :disabled="currentIndex === 0">
             Предыдущая
@@ -46,13 +57,12 @@
           </button>
         </div>
       </div>
-      <!-- Если задач нет или индекс вне диапазона -->
+
       <div v-else class="task-empty">
         <p>Все задания в этом батче аннотированы или индекс вне диапазона.</p>
       </div>
     </div>
 
-    <!-- Сам динамический маркап, фиксированно по центру под задачей -->
     <DynamicMarkup
         v-if="batchMarkup"
         class="markup-container"
@@ -63,6 +73,7 @@
     />
   </div>
 </template>
+
 
 <script setup>
 import { ref, computed } from 'vue';
@@ -110,19 +121,25 @@ function handleMarkupSubmitted(payload) {
   console.log('Сабмит динамического маркапа:', payload);
   // здесь ваша логика, если нужно
 }
-
+const taskData = computed(() => {
+  return currentTask.value ? getPairs(currentTask.value.rowFromBatch) : { isSingleColumn: false, pairs: [] };
+});
 /** Собираем пары (xxx1, xxx2) */
 function getPairs(row) {
   if (!row) return [];
+
   const entries = Object.entries(row);
   const pairsMap = {};
   const regex = /^(.*?)([12])$/;
+  let isSingleColumn = true; // Флаг, который определяет, что это одиночные элементы
 
   entries.forEach(([key, value]) => {
     const match = key.match(regex);
     if (match) {
+      isSingleColumn = false; // Нашли парный элемент, переключаем в режим сравнения
       const base = match[1];
       const suffix = match[2];
+
       if (!pairsMap[base]) {
         pairsMap[base] = {
           keyBase: base,
@@ -139,9 +156,22 @@ function getPairs(row) {
         pairsMap[base].key2 = key;
         pairsMap[base].value2 = value;
       }
+    } else {
+      // Одиночные элементы
+      pairsMap[key] = {
+        keyBase: key,
+        key1: key,
+        value1: value,
+        key2: null,
+        value2: null
+      };
     }
   });
-  return Object.values(pairsMap);
+
+  return {
+    isSingleColumn,
+    pairs: Object.values(pairsMap)
+  };
 }
 </script>
 

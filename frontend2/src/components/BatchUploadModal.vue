@@ -8,25 +8,32 @@
 
       <div class="modal-body">
         <div class="form-group">
+          <label for="name">Введите имя для разметки</label>
+          <input
+              type="text"
+              id="name"
+              class="text-input"
+              v-model="batchName"
+          />
           <label for="file">Выберите файл (CSV или JSON)</label>
-          <input 
-            type="file" 
-            id="file" 
-            ref="fileInput"
-            @change="handleFileChange"
-            accept=".csv,.json"
-            class="file-input"
+          <input
+              type="file"
+              id="file"
+              ref="fileInput"
+              @change="handleFileChange"
+              accept=".csv,.json"
+              class="file-input"
           />
         </div>
 
         <div class="form-group">
           <label for="overlaps">Количество перекрытий</label>
-          <input 
-            type="number" 
-            id="overlaps"
-            v-model="overlaps"
-            min="1"
-            class="number-input"
+          <input
+              type="number"
+              id="overlaps"
+              v-model="overlaps"
+              min="1"
+              class="number-input"
           />
         </div>
 
@@ -35,10 +42,10 @@
         </div>
 
         <div class="modal-footer">
-          <button 
-            class="upload-btn" 
-            @click="uploadBatch"
-            :disabled="!selectedFile || uploading"
+          <button
+              class="upload-btn"
+              @click="uploadBatch"
+              :disabled="!selectedFile || uploading"
           >
             {{ uploading ? 'Загрузка...' : 'Загрузить' }}
           </button>
@@ -50,7 +57,7 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import {ref} from 'vue';
 import axios from 'axios';
 
 const props = defineProps({
@@ -67,7 +74,7 @@ const selectedFile = ref(null);
 const overlaps = ref(1);
 const error = ref('');
 const uploading = ref(false);
-
+const batchName = ref('');
 const handleFileChange = (event) => {
   const file = event.target.files[0];
   if (file) {
@@ -90,7 +97,7 @@ const uploadBatch = async () => {
   const formData = new FormData();
   formData.append('file', selectedFile.value);
   formData.append('overlaps', overlaps.value);
-
+  formData.append('batchName',batchName.value);
   uploading.value = true;
   error.value = '';
 
@@ -101,7 +108,7 @@ const uploadBatch = async () => {
       },
       withCredentials: true
     });
-    
+
     emit('batchUploaded');
     close();
   } catch (err) {

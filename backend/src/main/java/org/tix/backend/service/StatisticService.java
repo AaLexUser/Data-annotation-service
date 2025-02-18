@@ -35,7 +35,7 @@ public class StatisticService {
         int taskByOverlaps = taskList.get(0).getFiniteOverlaps() * taskList.size();
         int completedTask = taskList.stream().mapToInt(Task::getCurrentOverlaps).sum();
 
-        Double percentOfCompletedTasks = completedTask * 100.0 / taskByOverlaps;
+        Double percentOfCompletedTasks = (completedTask * 100.0 / taskByOverlaps)%100;
         DecimalFormat decimalFormat = new DecimalFormat("#.##");
 
         adminPageStatisticDTO.setPercentOfCompletedTasks(decimalFormat.format(percentOfCompletedTasks));

@@ -20,9 +20,11 @@ public class BatchController {
 
 
     @PostMapping("/load")
-    public ResponseEntity<?> loadBatch(@RequestParam MultipartFile file, @RequestParam("overlaps") Integer overlaps) {
+    public ResponseEntity<?> loadBatch(@RequestParam MultipartFile file,
+                                       @RequestParam("overlaps") Integer overlaps,
+                                       @RequestParam("batchName") String batchName) {
         try {
-            Batch batch = batchService.saveBatch(file, overlaps);
+            Batch batch = batchService.saveBatch(file, overlaps, batchName);
             return ResponseEntity.ok(batch.getId());
         } catch (IOException e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error saving batch");
