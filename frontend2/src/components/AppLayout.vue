@@ -7,7 +7,7 @@
       
       <nav class="nav-menu">
         <router-link 
-          v-if="userRole === 'ADMIN'"
+          v-if="authStore.isAdmin"
           to="/admin" 
           class="nav-item" 
           active-class="active"
@@ -16,7 +16,7 @@
           Администратор
         </router-link>
         <router-link 
-          v-if="userRole === 'ASSESSOR' || userRole === 'ADMIN'"
+          v-if="authStore.isAssessor || authStore.isAdmin"
           to="/assessor" 
           class="nav-item" 
           active-class="active"
@@ -59,10 +59,11 @@ import { useAuthStore } from '@/stores/auth';
 const router = useRouter();
 const authStore = useAuthStore();
 
-const userName = computed(() => authStore.user?.name || 'Пользователь');
-const userRole = computed(() => authStore.user?.role || 'Гость');
+const userName = computed(() => authStore.user.name || 'Пользователь');
+const userRole = computed(() => authStore.user.role || 'Гость');
 const userInitials = computed(() => {
   const name = userName.value;
+  if (!name) return 'U';
   return name
     .split(' ')
     .map(word => word[0])
@@ -210,23 +211,8 @@ const handleLogout = () => {
   margin-left: 280px;
 }
 
-.main-header {
-  height: 72px;
-  background-color: white;
-  border-bottom: 1px solid #e2e8f0;
-  display: flex;
-  align-items: center;
-  padding: 0 32px;
-  position: sticky;
-  top: 0;
-  z-index: 10;
-}
-
-.company-name {
-  color: #2c3e50;
-  font-size: 1.5rem;
-  font-weight: 600;
-  margin: 0;
+.content {
+  padding: 24px;
 }
 
 @media (max-width: 768px) {
