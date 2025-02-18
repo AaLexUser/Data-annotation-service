@@ -38,13 +38,20 @@
             <td>{{ batch.taskCount }}</td>
             <td>{{ batch.completionPercentage }}%</td>
             <td>{{ formatDate(batch.uploadedAt) }}</td>
-            <td>
+            <td class="actions-cell">
               <button 
                 class="view-markup-btn"
                 @click="viewMarkup(batch.id)"
                 title="Просмотреть разметку"
               >
                 <span class="icon">👁</span>
+              </button>
+              <button 
+                class="assign-btn"
+                @click="openAssignModal(batch)"
+                title="Назначить асессоров"
+              >
+                <span class="icon">👥</span>
               </button>
             </td>
           </tr>
@@ -93,6 +100,13 @@
           </div>
         </div>
       </div>
+
+      <BatchAssignmentModal
+        v-if="showAssignModal"
+        :batchId="selectedBatchId"
+        @close="closeAssignModal"
+        @assigned="handleBatchAssigned"
+      />
     </div>
   </AppLayout>
 </template>
@@ -104,6 +118,7 @@ import { useRouter } from 'vue-router';
 import axios from 'axios';
 import BatchUploadModal from './BatchUploadModal.vue';
 import MarkupCreator from './MarkupCreator.vue';
+import BatchAssignmentModal from './BatchAssignmentModal.vue';
 import AppLayout from './AppLayout.vue';
 
 // Types
@@ -268,6 +283,34 @@ function useMarkupModal() {
   };
 }
 
+function useAssignModal() {
+  const showAssignModal = ref(false);
+  const selectedBatchId = ref(null);
+
+  const openAssignModal = (batch) => {
+    selectedBatchId.value = batch.id;
+    showAssignModal.value = true;
+  };
+
+  const closeAssignModal = () => {
+    showAssignModal.value = false;
+    selectedBatchId.value = null;
+  };
+
+  const handleBatchAssigned = () => {
+    // Refresh the batch list after assignment
+    fetchBatches();
+  };
+
+  return {
+    showAssignModal,
+    selectedBatchId,
+    openAssignModal,
+    closeAssignModal,
+    handleBatchAssigned
+  };
+}
+
 function useFormatting() {
   const formatDate = (dateString) => {
     if (!dateString) return '';
@@ -302,6 +345,13 @@ const {
   viewMarkup,
   closeViewMarkupModal
 } = useMarkupModal();
+const {
+  showAssignModal,
+  selectedBatchId,
+  openAssignModal,
+  closeAssignModal,
+  handleBatchAssigned
+} = useAssignModal();
 const { formatDate } = useFormatting();
 
 const handleBatchUploaded = () => {
@@ -439,7 +489,13 @@ onMounted(() => {
   font-size: 0.95rem;
 }
 
-.view-markup-btn {
+.actions-cell {
+  display: flex;
+  gap: 8px;
+}
+
+.view-markup-btn,
+.assign-btn {
   background: none;
   border: none;
   cursor: pointer;
@@ -449,7 +505,8 @@ onMounted(() => {
   color: #64748b;
 }
 
-.view-markup-btn:hover {
+.view-markup-btn:hover,
+.assign-btn:hover {
   background-color: #f1f5f9;
   color: #4f46e5;
 }
