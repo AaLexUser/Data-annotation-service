@@ -8,6 +8,7 @@ export const useAuthStore = defineStore('auth', {
     state: () => ({
         user: null,
         role: null,
+        userId: null,
         isAuthenticated: false,
     }),
 
@@ -15,8 +16,10 @@ export const useAuthStore = defineStore('auth', {
         async login(credentials) {
             try {
                 const response = await axios.post('/api/v1/user/login', credentials, { withCredentials: true });
-                this.user = response.data.username;
+                this.user = response.data;
                 this.role = response.data.role;
+                this.userId = response.data.userId;
+                console.log(this.userId);
                 this.isAuthenticated = true;
             } catch (error) {
                 console.error('Ошибка входа:', error);
@@ -29,6 +32,7 @@ export const useAuthStore = defineStore('auth', {
                 const response = await axios.post('/api/v1/user/create', credentials, { withCredentials: true });
                 this.user = response.data.username;
                 this.role = response.data.role;
+                this.userId = response.data.userId;
                 this.isAuthenticated = true;
             } catch (error) {
                 console.error('Ошибка регистрации:', error);
@@ -40,6 +44,7 @@ export const useAuthStore = defineStore('auth', {
             document.cookie = 'access_token=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 UTC;';
             this.user = null;
             this.role = null;
+            this.id = null
             this.isAuthenticated = false;
         },
     },

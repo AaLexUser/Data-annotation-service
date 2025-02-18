@@ -1,55 +1,74 @@
 <template>
-  <div>
-    <button class="back-button" @click="$emit('back')">← Назад к выбору батча</button>
+  <!-- Основной контейнер страницы -->
+  <div class="task-list-page">
+    <!-- Кнопка "Назад" + заголовок -->
+    <button class="back-button" @click="$emit('back')">
+      ← Назад к выбору батча
+    </button>
     <h2>Батч: {{ batchName }}</h2>
 
-    <div v-if="currentTask">
-      <h3>Задача №{{ currentTask.id }}</h3>
+    <!-- Контейнер для текущего задания -->
+    <div class="task-container">
+      <div v-if="currentTask" class="task-content">
+        <h3>Задача №{{ currentTask.id }}</h3>
 
-      <!-- Пары ключей -->
-      <div
-          class="pair-row"
-          v-for="pair in getPairs(currentTask.rowFromBatch)"
-          :key="pair.keyBase"
-      >
-        <template v-if="pair.keyBase.toLowerCase().includes('photo')">
-          <div class="pair-col">
-            <img :src="pair.value1" alt="photo1" class="photo-img" />
-          </div>
-          <div class="pair-col">
-            <img :src="pair.value2" alt="photo2" class="photo-img" />
-          </div>
-        </template>
-        <template v-else>
-          <div class="pair-col">
-            <strong>{{ pair.key1 }}:</strong> {{ pair.value1 }}
-          </div>
-          <div class="pair-col">
-            <strong>{{ pair.key2 }}:</strong> {{ pair.value2 }}
-          </div>
-        </template>
+        <!-- Пары ключей -->
+        <div
+            class="pair-row"
+            v-for="pair in getPairs(currentTask.rowFromBatch)"
+            :key="pair.keyBase"
+        >
+          <template v-if="pair.keyBase.toLowerCase().includes('photo')">
+            <div class="pair-col">
+              <img :src="pair.value1" alt="photo1" class="photo-img" />
+            </div>
+            <div class="pair-col">
+              <img :src="pair.value2" alt="photo2" class="photo-img" />
+            </div>
+          </template>
+          <template v-else>
+            <div class="pair-col">
+              <strong>{{ pair.key1 }}:</strong> {{ pair.value1 }}
+            </div>
+            <div class="pair-col">
+              <strong>{{ pair.key2 }}:</strong> {{ pair.value2 }}
+            </div>
+          </template>
+        </div>
+
+        <!-- Навигация "Предыдущая / Следующая" -->
+        <div class="nav-buttons">
+          <button @click="prevTask" :disabled="currentIndex === 0">
+            Предыдущая
+          </button>
+          <button @click="nextTask" :disabled="currentIndex === tasks.length - 1">
+            Следующая
+          </button>
+        </div>
       </div>
-
-      <!-- Навигация -->
-      <div class="nav-buttons">
-        <button @click="prevTask" :disabled="currentIndex === 0" >
-          Предыдущая
-        </button>
-        <button @click="nextTask" :disabled="currentIndex === tasks.length - 1">
-          Следующая
-        </button>
+      <!-- Если задач нет или индекс вне диапазона -->
+      <div v-else class="task-empty">
+        <p>Все задания в этом батче аннотированы или индекс вне диапазона.</p>
       </div>
     </div>
-    <div v-else>
-      <p>Все задания в этом батче аннотированы или индекс вне диапазона.</p>
-    </div>
+
+    <!-- Сам динамический маркап, фиксированно по центру под задачей -->
+    <DynamicMarkup
+        v-if="batchMarkup"
+        class="markup-container"
+        :markup="batchMarkup"
+        :assessor-id = "assessorId"
+        :task-id = "currentTask.id"
+        @submitted="handleMarkupSubmitted"
+    />
   </div>
 </template>
 
 <script setup>
 import { ref, computed } from 'vue';
+import DynamicMarkup from '@/components/DynamicMarkup.vue';
 
-const { tasks, batchName } = defineProps({
+const { tasks, batchName, assessorId, batchMarkup } = defineProps({
   tasks: {
     type: Array,
     default: () => []
@@ -57,31 +76,42 @@ const { tasks, batchName } = defineProps({
   batchName: {
     type: String,
     default: ''
+  },
+  batchMarkup: {
+    type: Object,
+    default: null
+  },
+  assessorId:{
+    type: Number,
+    default: null
   }
 });
+const emit = defineEmits(['back']);
 
 const currentIndex = ref(0);
 
-// currentTask — берём элемент массива по currentIndex
 const currentTask = computed(() => {
   return tasks[currentIndex.value] || null;
 });
 
-// Кнопка "предыдущая"
 function prevTask() {
   if (currentIndex.value > 0) {
     currentIndex.value--;
   }
 }
 
-// Кнопка "следующая"
 function nextTask() {
   if (currentIndex.value < tasks.length - 1) {
     currentIndex.value++;
   }
 }
 
-/** Формируем пары по суффиксу 1/2 */
+function handleMarkupSubmitted(payload) {
+  console.log('Сабмит динамического маркапа:', payload);
+  // здесь ваша логика, если нужно
+}
+
+/** Собираем пары (xxx1, xxx2) */
 function getPairs(row) {
   if (!row) return [];
   const entries = Object.entries(row);
@@ -94,7 +124,13 @@ function getPairs(row) {
       const base = match[1];
       const suffix = match[2];
       if (!pairsMap[base]) {
-        pairsMap[base] = { keyBase: base, key1: '', value1: '', key2: '', value2: '' };
+        pairsMap[base] = {
+          keyBase: base,
+          key1: '',
+          value1: '',
+          key2: '',
+          value2: ''
+        };
       }
       if (suffix === '1') {
         pairsMap[base].key1 = key;
@@ -105,12 +141,23 @@ function getPairs(row) {
       }
     }
   });
-
   return Object.values(pairsMap);
 }
 </script>
 
 <style scoped>
+/* Контейнер всей страницы TaskList */
+.task-list-page {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+
+  /*width: 100%;
+
+  /* Можно добавить min-height, если нужно */
+  /* min-height: 100vh; */
+}
+
 .back-button {
   background: none;
   border: none;
@@ -121,6 +168,33 @@ function getPairs(row) {
 }
 .back-button:hover {
   text-decoration: underline;
+}
+
+/* Область, где показываем задание */
+.task-container {
+  width: 1000px;
+  min-height: 400px;
+  max-height: 80vh;
+  overflow-y: auto;
+
+  /* Остальное */
+  background-color: #fdfdfd;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  padding: 16px;
+  margin-bottom: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.task-content {
+  width: 100%;
+}
+
+.task-empty {
+  text-align: center;
+  width: 100%;
 }
 
 .pair-row {
@@ -138,11 +212,13 @@ function getPairs(row) {
   border-radius: 4px;
 }
 
+/* Кнопки "Предыдущая" / "Следующая" */
 .nav-buttons {
   margin-top: 12px;
+  display: flex;
+  gap: 8px;
 }
 .nav-buttons button {
-  margin-right: 8px;
   padding: 6px 12px;
   background: #007bff;
   color: white;
@@ -152,9 +228,13 @@ function getPairs(row) {
 .nav-buttons button:disabled {
   opacity: 0.5;
   cursor: not-allowed;
-
 }
-.nav-buttons {
-  width: 150px;
+
+/* Контейнер для DynamicMarkup */
+.markup-container {
+
+  margin: 0 auto;
+  width: 300px;
+  /* Можно зафиксировать ширину, если надо */
 }
 </style>

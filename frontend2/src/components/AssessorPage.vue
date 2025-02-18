@@ -12,6 +12,9 @@
         v-else
         :tasks="tasks"
         :batchName="selectedBatch.name"
+        :assessorId="authStore.userId"
+        :batchMarkup="batchMarkup"
+
         @back="handleBack"
     />
   </div>
@@ -28,11 +31,13 @@ import TaskList from '@/components/TaskList.vue';
 import { useAuthStore } from '@/stores/auth';
 
 const authStore = useAuthStore();
+console.log(authStore.userId)
 
 // Списки батчей и заданий
 const batches = ref([]);
 const tasks = ref([]);
 const selectedBatch = ref(null);
+const batchMarkup = ref(null);
 
 /** Получаем все батчи */
 async function fetchBatches() {
@@ -58,11 +63,25 @@ async function fetchTasks(batchId) {
 }
 
 /** Обработчик события batchSelected */
-function handleBatchSelected(batch) {
+async function handleBatchSelected(batch) {
   selectedBatch.value = batch;
-  fetchTasks(batch.id);
+  await fetchTasks(batch.id);
+  batchMarkup.value = await fetchMarkupForBatch(batch.id);
 }
-
+async function fetchMarkupForBatch(batchId) {
+  try {
+    // Предполагается, что ваш контроллер обрабатывает запрос
+    // GET /api/v1/markup/byBatchId?id={batchId}
+    const response = await axios.get(
+        `/api/v1/markup/byBatchId?id=${batchId}`,
+        { withCredentials: true }
+    );
+    return response.data;
+  } catch (error) {
+    console.error('Ошибка получения маркапа для батча:', error);
+    return null;
+  }
+}
 /** Обработчик "вернуться назад к списку батчей" */
 function handleBack() {
   selectedBatch.value = null;

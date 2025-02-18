@@ -8,10 +8,7 @@ import org.tix.backend.repository.TaskRepository;
 import org.tix.backend.repository.UserMarkupRepository;
 import org.tix.backend.repository.UserRepository;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 @Service
 public class UserMarkupService {
@@ -25,7 +22,11 @@ public class UserMarkupService {
         this.userRepository = userRepository;
     }
 
-    public void submitMarkup(Long taskId, Long assessorId, Map<String, String> selections) {
+    public void submitMarkup(Long taskId, Long assessorId, Map<String, String> selections) throws RuntimeException {
+        Optional<UserMarkup> existing = userMarkupRepository.findByTaskIdAndAssessorId(taskId, assessorId);
+        if (existing.isPresent()) {
+            throw new RuntimeException("Ассессор уже аннотировал эту задачу!");
+        }
         Task task = taskRepository.findById(taskId)
                 .orElseThrow(() -> new RuntimeException("Task not found"));
 
