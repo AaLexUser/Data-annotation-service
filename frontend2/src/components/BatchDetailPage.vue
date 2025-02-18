@@ -82,7 +82,6 @@
 import {ref, computed, onMounted} from 'vue';
 import AppLayout from './AppLayout.vue';
 import axios from 'axios';
-import router from "@/router/index.js";
 import {useRoute} from "vue-router";
 
 const route = useRoute();
@@ -227,129 +226,124 @@ onMounted(() => {
 </script>
 
 <style scoped>
+/* ============================= */
+/* 1. ОБЩИЙ КОНТЕЙНЕР СТРАНИЦЫ   */
+/* ============================= */
 .batch-detail-container {
-  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  max-height: 100vh; /* Ограничиваем высоту всей страницы компонента */
+  overflow-y: auto;  /* Разрешаем вертикальную прокрутку */
+  padding: 1rem;
   background-color: white;
   border-radius: 12px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-  margin-bottom: 24px;
 }
 
+/* ============================= */
+/* 2. ШАПКА (ЗАГОЛОВОК)          */
+/* ============================= */
 .header {
+  position: sticky; /* Фиксируем заголовок */
+  top: 0;
+  z-index: 10;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 24px;
-  padding-bottom: 16px;
+  background: white;
+  padding: 8px 0;
   border-bottom: 1px solid #eef2f7;
 }
 
 .header h1 {
   color: #2c3e50;
-  font-size: 1.75rem;
+  font-size: 1.4rem;
   font-weight: 600;
   margin: 0;
 }
 
 .header-buttons {
   display: flex;
-  gap: 12px;
-}
-
-.export-btn {
-  padding: 8px 16px;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  font-size: 0.9rem;
-  transition: all 0.2s ease;
-  font-weight: 500;
-}
-
-.task-table-wrapper {
-  max-height: 400px; /* Ограничение высоты (можно изменить) */
-  overflow-y: auto; /* Добавляем вертикальную прокрутку */
-  border: 1px solid #e2e8f0; /* Граница для красоты */
-}
-
-/* Фиксируем заголовок таблицы */
-.task-table thead {
-  position: sticky;
-  top: 0;
-  background: #f8fafc;
-  z-index: 10;
-}
-
-.export-btn:hover {
-  background-color: #4338ca;
-}
-
-
-.package-name {
-  display: flex;
-  align-items: center;
   gap: 8px;
 }
 
-.package-name input {
-  width: auto;
-  max-width: 300px;
+/* Кнопка "Экспорт" в заголовке */
+.export-btn {
+  padding: 4px 8px;
+  font-size: 12px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  white-space: nowrap;
 }
 
-.package-status {
-  max-width: 300px;
+.export-btn:hover {
+  background-color: #0056b3;
 }
 
-.task-table-section {
-  margin-top: 24px;
-}
-
-.task-table {
-  width: 100%;
-  border-collapse: separate;
-  border-spacing: 0;
-  background-color: white;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-  border-radius: 8px;
-  overflow: hidden;
-  border: 1px solid #e2e8f0;
-}
-
-.task-table th,
-.task-table td {
-  padding: 12px 16px;
-  text-align: left;
-  border-bottom: 1px solid #e2e8f0;
-}
-
-.task-table th {
-  background-color: #f8fafc;
-  font-weight: 600;
-  font-size: 0.85rem;
-  color: #64748b;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-}
-
-.task-table tr:hover {
-  background-color: #f8fafc;
-}
-
-.task-table tr:last-child td {
-  border-bottom: none;
-}
-
-.task-table td {
-  color: #334155;
-  font-size: 0.95rem;
-}
-
-.filters {
-  display: flex;
-  gap: 12px;
+/* ============================= */
+/* 3. ИНФОРМАЦИЯ О БАТЧЕ         */
+/* ============================= */
+.batch-info {
+  background: #f8fafc;
+  padding: 8px;
+  border-radius: 6px;
   margin-bottom: 12px;
 }
 
+.batch-info h2 {
+  margin: 0 0 8px 0;
+  font-size: 1.1rem;
+}
+
+/* Поле ввода + кнопка "Сохранить" */
+.package-name {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 12px;
+}
+
+.package-name input {
+  width: 180px;
+  font-size: 12px;
+  padding: 4px 6px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+/* Кнопка "Сохранить" */
+.save-btn {
+  padding: 4px 6px;
+  font-size: 12px;
+  height: 24px;
+  width: 100px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.save-btn:hover {
+  background-color: #0056b3;
+}
+
+/* ============================= */
+/* 4. ПЕРЕКЛЮЧАТЕЛЬ СТАТУСА      */
+/* ============================= */
+.package-status {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  max-width: 300px;
+  margin-bottom: 12px;
+}
+
+/* Стили для toggle-switch */
 .switch {
   position: relative;
   display: inline-block;
@@ -365,14 +359,11 @@ onMounted(() => {
 
 .slider {
   position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
   cursor: pointer;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
   background-color: #ccc;
-  transition: 0.4s;
   border-radius: 24px;
+  transition: 0.4s;
 }
 
 .slider:before {
@@ -383,8 +374,8 @@ onMounted(() => {
   left: 3px;
   bottom: 3px;
   background-color: white;
-  transition: 0.4s;
   border-radius: 50%;
+  transition: 0.4s;
 }
 
 input:checked + .slider {
@@ -395,135 +386,158 @@ input:checked + .slider:before {
   transform: translateX(20px);
 }
 
+/* ============================= */
+/* 5. ТАБЛИЦА (ИТОГИ БАТЧА)      */
+/* ============================= */
 .batch-table {
   width: 100%;
   border-collapse: separate;
   border-spacing: 0;
   background-color: white;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-  border-radius: 8px;
-  overflow: hidden;
   border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  overflow: hidden;
+  margin-bottom: 16px;
 }
 
 .batch-table th,
 .batch-table td {
-  padding: 12px 16px;
+  padding: 8px 12px;
   text-align: left;
   border-bottom: 1px solid #e2e8f0;
+  font-size: 0.85rem;
 }
 
 .batch-table th {
   background-color: #f8fafc;
   font-weight: 600;
-  font-size: 0.85rem;
   color: #64748b;
   text-transform: uppercase;
   letter-spacing: 0.05em;
 }
 
 .batch-table tr:hover {
-  background-color: #f8fafc;
+  background-color: #f1f5f9;
 }
 
 .batch-table tr:last-child td {
   border-bottom: none;
 }
 
-.batch-table td {
-  color: #334155;
-  font-size: 0.95rem;
+/* ============================= */
+/* 6. СПИСОК ЗАДАНИЙ (SCROLL)    */
+/* ============================= */
+.task-table-section h3 {
+  margin: 0 0 8px 0;
+  font-size: 1rem;
 }
 
+.task-table-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.filters {
+  display: flex;
+  gap: 8px;
+}
+
+.task-table-wrapper {
+  max-height: 300px; /* Ограничение высоты списка задач */
+  overflow-y: auto;  /* Прокрутка */
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+}
+
+/* Таблица задач */
+.task-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  background-color: white;
+  border-radius: 6px;
+  overflow: hidden;
+  border: none; /* Внешний border уже есть в wrapper */
+}
+
+/* Фиксируем thead при прокрутке */
+.task-table thead {
+  position: sticky;
+  top: 0;
+  background: #f8fafc;
+  z-index: 10;
+}
+
+.task-table th,
+.task-table td {
+  padding: 8px 10px;
+  border-bottom: 1px solid #e2e8f0;
+  font-size: 0.85rem;
+  text-align: left;
+}
+
+.task-table th {
+  font-weight: 600;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.task-table tr:hover {
+  background-color: #f1f5f9;
+}
+
+.task-table tr:last-child td {
+  border-bottom: none;
+}
+
+.task-table td {
+  color: #334155;
+}
+
+/* ============================= */
+/* 7. СТИЛИ ДЛЯ ЧЕКБОКСОВ/РАДИО  */
+/* ============================= */
 .label-container {
   display: flex;
-  align-items: center; /* Выровнять элементы по центру */
-  gap: 6px; /* Уменьшили отступ */
-  margin-bottom: 3px; /* Минимальный отступ */
-}
-
-/* ✅ Кастомные чекбоксы */
-.custom-checkbox {
-  width: 18px;
-  height: 18px;
-  border: 2px solid #007bff; /* Синий контур */
-  border-radius: 4px;
-  position: relative;
-  display: inline-block;
-  cursor: not-allowed;
+  align-items: center;
+  gap: 4px;
   vertical-align: middle;
 }
 
-.custom-checkbox:checked {
-  background-color: #007bff;
-  border-color: #007bff;
+.custom-checkbox,
+.custom-radio {
+  width: 14px;
+  height: 14px;
+  margin: 0; /* Убираем лишние отступы */
+  cursor: not-allowed; /* Так как disabled */
 }
 
-.custom-checkbox:checked::after {
-  content: '✔';
-  color: white;
-  font-size: 14px;
-  font-weight: bold;
-  position: absolute;
-  left: 3px;
-  top: 0px;
+/* Просто используем accent-color (если поддерживается) */
+/* Можно оставить кастомные стили, если нужно */
+.custom-checkbox {
+  accent-color: #007bff;
 }
 
 .custom-radio {
-  width: 18px;
-  height: 18px;
-  border: 2px solid #28a745; /* Зеленый контур */
-  border-radius: 50%;
-  position: relative;
-  display: inline-block;
-  cursor: not-allowed;
-  vertical-align: middle;
-}
-
-.custom-radio:checked {
-  background-color: #28a745;
-  border-color: #28a745;
-}
-
-.custom-radio:checked::after {
-  content: '';
-  width: 10px;
-  height: 10px;
-  background-color: white;
-  border-radius: 50%;
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  transform: translate(-50%, -50%);
+  accent-color: #28a745;
 }
 
 .checkbox-text {
   color: #007bff;
   font-weight: bold;
+  font-size: 0.85rem;
 }
 
 .radio-text {
   color: #28a745;
   font-weight: bold;
+  font-size: 0.85rem;
 }
 
-/* Серый текст для "нет разметки" */
 .text-gray {
   color: #6c757d;
-}
-
-.save-btn {
-  padding: 8px 12px;
-  background-color: #007bff;
-  color: white;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  font-size: 14px;
-  margin-left: 10px;
-}
-
-.save-btn:hover {
-  background-color: #0056b3;
+  font-size: 0.85rem;
 }
 </style>
