@@ -1,23 +1,26 @@
 <template>
-  <div class="assessor-container">
-    <!-- Если батч не выбран, показываем BatchList -->
-    <BatchList
-        v-if="!selectedBatch"
-        :batches="batches"
-        @batchSelected="handleBatchSelected"
-    />
+  <AppLayout>
+    <div class="assessor-container">
+      <h1>Страница асессора</h1>
+      <!-- Если батч не выбран, показываем BatchList -->
+      <BatchList
+          v-if="!selectedBatch"
+          :batches="batches"
+          @batchSelected="handleBatchSelected"
+      />
 
-    <!-- Если батч выбран, показываем TaskList -->
-    <TaskList
-        v-else
-        :tasks="tasks"
-        :batchName="selectedBatch.name"
-        :assessorId="authStore.userId"
-        :batchMarkup="batchMarkup"
+      <!-- Если батч выбран, показываем TaskList -->
+      <TaskList
+          v-else
+          :tasks="tasks"
+          :batchName="selectedBatch.name"
+          :assessorId="authStore.userId"
+          :batchMarkup="batchMarkup"
 
-        @back="handleBack"
-    />
-  </div>
+          @back="handleBack"
+      />
+    </div>
+  </AppLayout>
 </template>
 
 <script setup>
@@ -27,6 +30,7 @@ import axios from 'axios';
 // Компоненты
 import BatchList from '@/components/BatchList.vue';
 import TaskList from '@/components/TaskList.vue';
+import AppLayout from './AppLayout.vue';
 
 import { useAuthStore } from '@/stores/auth';
 
@@ -96,7 +100,17 @@ onMounted(() => {
 
 <style scoped>
 .assessor-container {
-  padding: 20px;
-  font-family: Arial, sans-serif;
+  background-color: white;
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  padding: 24px;
+  margin-bottom: 24px;
+}
+
+h1 {
+  color: #2c3e50;
+  font-size: 1.75rem;
+  font-weight: 600;
+  margin: 0 0 24px 0;
 }
 </style>
