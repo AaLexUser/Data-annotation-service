@@ -4,6 +4,7 @@ import com.opencsv.CSVReader;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import org.tix.backend.dto.stat.TaskStatForAdmin;
 import org.tix.backend.model.Batch;
 import org.tix.backend.model.Task;
 import org.tix.backend.repository.BatchRepository;
@@ -101,5 +102,60 @@ public class BatchService {
 
     public ResponseEntity<?> getCurrentStatus(Long batchId) {
         return ResponseEntity.ok(Map.of("status", batchRepository.findById(batchId).orElseThrow().getIsActive() ? "active" : "inactive"));
+    }
+
+    public List<TaskStatForAdmin> getAllTaskByBatchId(Long batchId) {
+
+        List<TaskStatForAdmin> taskStatForAdminList = new ArrayList<>();
+        List<Task> taskList = taskRepository.findAllByBatchId(batchRepository.findById(batchId).orElseThrow());
+        for (Task task : taskList) {
+            TaskStatForAdmin taskStatForAdmin = new TaskStatForAdmin();
+            taskStatForAdmin.setId(task.getId());
+            taskStatForAdmin.setStatus(defineStatusTask(task));
+            taskStatForAdmin.setFinalMark(defineFinalMark(task));
+            taskStatForAdminList.add(taskStatForAdmin);
+        }
+        return taskStatForAdminList;
+    }
+
+    private String defineStatusTask(Task task) {
+        int tmp = task.getCurrentOverlaps();
+        if (tmp == 0){
+            return "AWAITING";
+        } else if (tmp == task.getFiniteOverlaps()) {
+            return "FINITE";
+        }
+        else{
+            return "PARTIALLY";
+        }
+    }
+
+    private String defineFinalMark(Task task){
+        String finalMark = task.getFinalMarkup();
+        if (finalMark == null || finalMark.isEmpty()) {
+            return "N/A";
+        }
+
+        finalMark = finalMark.replaceAll("[{}]", ""); // Убираем фигурные скобки
+        String[] pairs = finalMark.split(", ");
+
+        StringBuilder formattedResult = new StringBuilder();
+        for (String pair : pairs) {
+            String[] keyValue = pair.split("=");
+
+            if (keyValue.length == 2 && !keyValue[1].trim().isEmpty()) { // Пропускаем пустые значения
+                formattedResult.append(keyValue[0].trim()).append(": ").append(keyValue[1].trim()).append(" | ");
+            }
+        }
+
+        return !formattedResult.isEmpty()
+                ? formattedResult.substring(0, formattedResult.length() - 3) // Убираем лишний `|`
+                : "N/A";
+    }
+
+    public Batch updateName(Long batchId, String name) {
+        Batch batch = batchRepository.findById(batchId).orElseThrow(() -> new RuntimeException("Batch not found"));
+        batch.setName(name);
+        return batchRepository.save(batch);
     }
 }

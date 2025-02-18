@@ -5,10 +5,13 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.tix.backend.dto.BatchDetailsDTO;
+import org.tix.backend.dto.UpdateBatchNameDTO;
+import org.tix.backend.dto.stat.TaskStatForAdmin;
 import org.tix.backend.model.Batch;
 import org.tix.backend.service.BatchService;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -49,9 +52,7 @@ public class BatchController {
         return ResponseEntity.ok(status);
     }
 
-    public ResponseEntity<BatchDetailsDTO> getBatchDetails(@RequestParam Long batchId) {
-        return null;
-    }
+
     @PostMapping("/{id}/toggle-status")
     public ResponseEntity<Map<String, String>> toggleBatchStatus(
             @PathVariable Long id,
@@ -65,6 +66,15 @@ public class BatchController {
     @GetMapping("/{batchId}/status")
     public ResponseEntity<?> getStatus(@PathVariable Long batchId) {
         return batchService.getCurrentStatus(batchId);
+    }
+
+    @GetMapping("/{batchId}/tasks")
+    public ResponseEntity<List<TaskStatForAdmin>> getTaskByBatch(@PathVariable Long batchId) {
+        return ResponseEntity.ok( batchService.getAllTaskByBatchId(batchId));
+    }
+    @PostMapping("/update-name")
+    public ResponseEntity<?> updateBatchName(@RequestBody UpdateBatchNameDTO updateBatchNameDTO) {
+        return ResponseEntity.ok(batchService.updateName(updateBatchNameDTO.getBatchId(),updateBatchNameDTO.getName()).getName());
     }
 
 }

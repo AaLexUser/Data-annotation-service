@@ -41,4 +41,5 @@ public class AdminController {
         userService.refuseBatchToAssessor(batchId, userId);
         return ResponseEntity.ok("Refuse successfully");
     }
+
 }

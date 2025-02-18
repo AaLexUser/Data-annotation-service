@@ -12,40 +12,42 @@
         <h2>Название пакета</h2>
         <div class="package-name">
           <input v-model="packageName" @blur="savePackageName" placeholder="Введите название пакета"/>
+          <button class="save-btn" @click="savePackageName">Сохранить</button>
         </div>
         <div class="package-status">
           <div class="package-status">
             <label class="switch">
-              <input type="checkbox" v-model="packageStatus" @change="togglePackageStatus" />
+              <input type="checkbox" v-model="packageStatus" @change="togglePackageStatus"/>
               <span class="slider"></span>
             </label>
             <span>{{ packageStatus ? 'Активен' : 'Неактивен' }}</span>
           </div>
         </div>
-          <table class="batch-table">
-            <thead>
-            <tr>
-              <th>Id Батча</th>
-              <th>Title</th>
-              <th>Тип разметки</th>
-              <th>Количество заданий в батче</th>
-              <th>Процент выполнения</th>
-              <th>Дата и время загрузки</th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr>
-              <td>{{ batch.id }}</td>
-              <td>{{ batch.name }}</td>
-              <td>{{ batch.format }}</td>
-              <td>{{ batch.taskCount }}</td>
-              <td>{{ batch.completionPercentage }}%</td>
-              <td>{{ formatDate(batch.uploadedAt) }}</td>
-            </tr>
-            </tbody>
-          </table>
 
+        <table class="batch-table">
+          <thead>
+          <tr>
+            <th>Id Батча</th>
+            <th>Title</th>
+            <th>Тип разметки</th>
+            <th>Количество заданий в батче</th>
+            <th>Процент выполнения</th>
+            <th>Дата и время загрузки</th>
+          </tr>
+          </thead>
+          <tbody>
+          <tr>
+            <td>{{ batch.id }}</td>
+            <td>{{ batch.name }}</td>
+            <td>{{ batch.format }}</td>
+            <td>{{ batch.taskCount }}</td>
+            <td>{{ batch.completionPercentage }}%</td>
+            <td>{{ formatDate(batch.uploadedAt) }}</td>
+          </tr>
+          </tbody>
+        </table>
       </div>
+
 
       <div class="task-table-section">
         <h3>Список заданий в данном пакете</h3>
@@ -53,24 +55,24 @@
           <input v-model="statusFilter" placeholder="Фильтр по статусу"/>
           <input v-model="scoreFilter" placeholder="Фильтр по финальной оценке"/>
         </div>
-        <table class="task-table">
-          <thead>
-          <tr>
-            <th>Id задания</th>
-            <th>query/title</th>
-            <th>Статус (готов/частично/ожидает)</th>
-            <th>финальная оценка</th>
-          </tr>
-          </thead>
-          <tbody>
-          <tr v-for="task in filteredTasks" :key="task.id" @click="goToTask(task.id)">
-            <td>{{ task.id }}</td>
-            <td>{{ task.title }}</td>
-            <td>{{ task.status }}</td>
-            <td>{{ task.finalScore }}</td>
-          </tr>
-          </tbody>
-        </table>
+        <div class="task-table-wrapper">
+          <table class="task-table">
+            <thead>
+            <tr>
+              <th>Id задания</th>
+              <th>Статус (готов/частично/ожидает)</th>
+              <th>финальная оценка</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr v-for="task in filteredTasks" :key="task.id" @click="goToTask(task.id)">
+              <td>{{ task.id }}</td>
+              <td>{{ task.status }}</td>
+              <td v-html="formatMarkup(task.finalMark)"></td>
+            </tr>
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   </AppLayout>
@@ -82,8 +84,9 @@ import AppLayout from './AppLayout.vue';
 import axios from 'axios';
 import router from "@/router/index.js";
 import {useRoute} from "vue-router";
+
 const route = useRoute();
-import { useBatchStore } from '@/stores/batchStore';
+import {useBatchStore} from '@/stores/batchStore';
 
 
 const batchStore = useBatchStore();
@@ -96,21 +99,40 @@ const tasks = ref([]);
 const statusFilter = ref('');
 const scoreFilter = ref('');
 
-const fetchPackageDetails = async () => {
+// const fetchPackageDetails = async () => {
+//   try {
+//     const response = await axios.get('/api/v1/batch/details');
+//     packageName.value = response.data.name;
+//     packageStatus.value = response.data.status;
+//     packageDetails.value = response.data.details;
+//     tasks.value = response.data.tasks;
+//   } catch (error) {
+//     console.error('Error fetching package details:', error);
+//   }
+// };
+const fetchBatchTasks = async () => {
+  if (!batch.value || !batch.value.id) {
+    console.error(" Ошибка: batch.id отсутствует, не могу загрузить задачи!");
+    return;
+  }
+
   try {
-    const response = await axios.get('/api/v1/batch/details');
-    packageName.value = response.data.name;
-    packageStatus.value = response.data.status;
-    packageDetails.value = response.data.details;
-    tasks.value = response.data.tasks;
+    console.log(`Запрашиваем задачи для batchId=${batch.value.id}`);
+    const response = await axios.get(`/api/v1/batch/${batch.value.id}/tasks`);
+    tasks.value = response.data; // Загружаем все задачи
+    console.log(`Загружено ${tasks.value.length} задач`);
   } catch (error) {
-    console.error('Error fetching package details:', error);
+    console.error("Ошибка при загрузке задач:", error);
+    tasks.value = [];
   }
 };
 
 const savePackageName = async () => {
   try {
-    await axios.post('/api/v1/package/update-name', {name: packageName.value});
+    await axios.post('/api/v1/batch/update-name', {
+      batchId: batch.value.id,
+      name: packageName.value
+    });
   } catch (error) {
     console.error('Error saving package name:', error);
   }
@@ -135,11 +157,14 @@ function useFormatting() {
     formatDate
   };
 }
+
 const filteredTasks = computed(() => {
+  if (!tasks.value.length) return []; // Если задач нет, возвращаем пустой массив
+
   return tasks.value.filter(task => {
     return (
-        (!statusFilter.value || task.status.includes(statusFilter.value)) &&
-        (!scoreFilter.value || task.finalScore.includes(scoreFilter.value))
+        (!statusFilter.value || (task.status && task.status.includes(statusFilter.value))) &&
+        (!scoreFilter.value || (task.finalScore && task.finalScore.includes(scoreFilter.value)))
     );
   });
 });
@@ -148,13 +173,14 @@ const {formatDate} = useFormatting();
 function goToTask(taskId) {
   console.log('Navigating to task:', taskId);
 }
+
 const togglePackageStatus = async () => {
   try {
     const newStatus = packageStatus.value ? "active" : "inactive";
-    await axios.post(`/api/v1/batch/${batch.value.id}/toggle-status`, { status: newStatus });
-    console.log(`✅ Статус батча обновлён: ${newStatus}`);
+    await axios.post(`/api/v1/batch/${batch.value.id}/toggle-status`, {status: newStatus});
+    console.log(`Статус батча обновлён: ${newStatus}`);
   } catch (error) {
-    console.error('❌ Ошибка при изменении статуса батча:', error);
+    console.error('Ошибка при изменении статуса батча:', error);
     packageStatus.value = !packageStatus.value; // Откатить изменение в случае ошибки
   }
 };
@@ -167,8 +193,35 @@ const fetchBatchStatus = async () => {
   }
 };
 
+const formatMarkup = (markup) => {
+  if (!markup || markup === "N/A") return "<span class='text-gray'>Нет разметки</span>";
+
+  return markup
+      .split(" | ") // Разделяем "радио 2: selected | чек 2: checked"
+      .map(item => {
+        const [label, value] = item.split(": ");
+
+        if (value === "selected") {
+          return `<span class="label-container">
+                  <input type="radio" checked disabled class="custom-radio">
+                  <span class="radio-text">${label}</span>
+                </span>`;
+        }
+        if (value === "checked") {
+          return `<span class="label-container">
+                  <input type="checkbox" checked disabled class="custom-checkbox">
+                  <span class="checkbox-text">${label}</span>
+                </span>`;
+        }
+
+        return `<span class="text-gray">${label}</span>`;
+      })
+      .join(""); // Убираем лишние переносы строк
+};
+
+
 onMounted(() => {
-  fetchPackageDetails();
+  fetchBatchTasks();
   fetchBatchStatus();
 });
 </script>
@@ -211,6 +264,20 @@ onMounted(() => {
   font-size: 0.9rem;
   transition: all 0.2s ease;
   font-weight: 500;
+}
+
+.task-table-wrapper {
+  max-height: 400px; /* Ограничение высоты (можно изменить) */
+  overflow-y: auto; /* Добавляем вертикальную прокрутку */
+  border: 1px solid #e2e8f0; /* Граница для красоты */
+}
+
+/* Фиксируем заголовок таблицы */
+.task-table thead {
+  position: sticky;
+  top: 0;
+  background: #f8fafc;
+  z-index: 10;
 }
 
 .export-btn:hover {
@@ -282,6 +349,7 @@ onMounted(() => {
   gap: 12px;
   margin-bottom: 12px;
 }
+
 .switch {
   position: relative;
   display: inline-block;
@@ -326,6 +394,7 @@ input:checked + .slider {
 input:checked + .slider:before {
   transform: translateX(20px);
 }
+
 .batch-table {
   width: 100%;
   border-collapse: separate;
@@ -364,5 +433,97 @@ input:checked + .slider:before {
 .batch-table td {
   color: #334155;
   font-size: 0.95rem;
+}
+
+.label-container {
+  display: flex;
+  align-items: center; /* Выровнять элементы по центру */
+  gap: 6px; /* Уменьшили отступ */
+  margin-bottom: 3px; /* Минимальный отступ */
+}
+
+/* ✅ Кастомные чекбоксы */
+.custom-checkbox {
+  width: 18px;
+  height: 18px;
+  border: 2px solid #007bff; /* Синий контур */
+  border-radius: 4px;
+  position: relative;
+  display: inline-block;
+  cursor: not-allowed;
+  vertical-align: middle;
+}
+
+.custom-checkbox:checked {
+  background-color: #007bff;
+  border-color: #007bff;
+}
+
+.custom-checkbox:checked::after {
+  content: '✔';
+  color: white;
+  font-size: 14px;
+  font-weight: bold;
+  position: absolute;
+  left: 3px;
+  top: 0px;
+}
+
+.custom-radio {
+  width: 18px;
+  height: 18px;
+  border: 2px solid #28a745; /* Зеленый контур */
+  border-radius: 50%;
+  position: relative;
+  display: inline-block;
+  cursor: not-allowed;
+  vertical-align: middle;
+}
+
+.custom-radio:checked {
+  background-color: #28a745;
+  border-color: #28a745;
+}
+
+.custom-radio:checked::after {
+  content: '';
+  width: 10px;
+  height: 10px;
+  background-color: white;
+  border-radius: 50%;
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.checkbox-text {
+  color: #007bff;
+  font-weight: bold;
+}
+
+.radio-text {
+  color: #28a745;
+  font-weight: bold;
+}
+
+/* Серый текст для "нет разметки" */
+.text-gray {
+  color: #6c757d;
+}
+
+.save-btn {
+  padding: 8px 12px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 14px;
+  margin-left: 10px;
+}
+
+.save-btn:hover {
+  background-color: #0056b3;
 }
 </style>

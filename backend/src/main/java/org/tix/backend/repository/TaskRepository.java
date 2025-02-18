@@ -16,4 +16,6 @@ public interface TaskRepository extends JpaRepository<Task, Long> {
     List<Task> getAllByBatchId(Batch batch);
 
     Optional<Task> findByBatchId(Batch batchId);
+
+    List<Task> findAllByBatchId(Batch Id);
 }
