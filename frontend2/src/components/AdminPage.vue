@@ -20,26 +20,31 @@
 
       <table class="batch-table">
         <thead>
-        <tr>
-          <th>Id Батча</th>
-          <th>Title</th>
-          <th>Тип разметки</th>
-          <th>Количество заданий в батче</th>
-          <th>Процент выполнения</th>
-          <th>Дата и время загрузки</th>
-          <th>Действия</th>
-        </tr>
+          <tr>
+            <th>Id Батча</th>
+            <th>Title</th>
+            <th>Тип разметки</th>
+            <th>Количество заданий в батче</th>
+            <th>Процент выполнения</th>
+            <th>Дата и время загрузки</th>
+            <th>Тип</th>
+            <th>Действия</th>
+          </tr>
         </thead>
         <tbody>
-        <tr v-for="batch in filteredBatches" :key="batch.id">
-          <td>{{ batch.id }}</td>
-          <td>{{ batch.name }}</td>
-          <td>{{ batch.format }}</td>
-          <td>{{ batch.taskCount }}</td>
-          <td>{{ batch.completionPercentage }}%</td>
-          <td>{{ formatDate(batch.uploadedAt) }}</td>
-          <td class="actions-cell">
-            <button
+          <tr v-for="batch in filteredBatches" :key="batch.id">
+            <td>{{ batch.id }}</td>
+            <td>{{ batch.name }}</td>
+            <td>{{ batch.format }}</td>
+            <td>{{ batch.taskCount }}</td>
+            <td>{{ batch.completionPercentage }}%</td>
+            <td>{{ formatDate(batch.uploadedAt) }}</td>
+            <td>
+              <span v-if="batch.isEducational" class="badge educational">Educational</span>
+              <span v-else class="badge normal">Normal</span>
+            </td>
+            <td class="actions-cell">
+              <button 
                 class="view-markup-btn"
                 @click="viewMarkup(batch.id)"
                 title="Просмотреть разметку"
@@ -57,11 +62,19 @@
                 class="assign-btn"
                 @click="navigateToBatchDetail(batch)"
                 title="Детали"
-            >
-              <span class="icon">⚙️</span>
-            </button>
-          </td>
-        </tr>
+              >
+                <span class="icon">⚙️</span>
+              </button>
+              <button
+                v-if="!batch.isEducational"
+                class="educational-btn"
+                @click="openEducationalModal(batch)"
+                title="Set as Educational"
+              >
+                <span class="icon">🎓</span>
+              </button>
+            </td>
+          </tr>
         </tbody>
       </table>
 
@@ -74,6 +87,16 @@
       <MarkupCreator
           v-if="isMarkupModalOpen"
           @close="closeMarkupModal"
+      />
+
+      <EducationalBatchModal
+        v-if="showEducationalModal"
+        :is-open="showEducationalModal"
+        :batch-id="selectedBatchId"
+        :markup="currentMarkup"
+        :tasks="currentTasks"
+        @close="closeEducationalModal"
+        @batch-set="handleEducationalBatchSet"
       />
 
       <div v-if="isViewMarkupModalOpen" class="modal-overlay">
@@ -126,6 +149,7 @@ import axios from 'axios';
 import BatchUploadModal from './BatchUploadModal.vue';
 import MarkupCreator from './MarkupCreator.vue';
 import BatchAssignmentModal from './BatchAssignmentModal.vue';
+import EducationalBatchModal from './EducationalBatchModal.vue';
 import AppLayout from './AppLayout.vue';
 
 // Types
@@ -374,6 +398,48 @@ async function navigateToBatchDetail(batch) {
 const handleBatchUploaded = () => {
   fetchBatches();
 };
+
+const showEducationalModal = ref(false);
+const currentTasks = ref([]);
+
+async function openEducationalModal(batch) {
+  selectedBatchId.value = batch.id;
+  
+  // Fetch tasks for the batch
+  try {
+    const response = await axios.get(`/api/v1/assessor/tasks?batchId=${batch.id}`, {
+      withCredentials: true
+    });
+    currentTasks.value = response.data;
+  } catch (error) {
+    console.error('Error fetching tasks:', error);
+    return;
+  }
+
+  // Fetch markup for the batch
+  try {
+    const response = await axios.get(`/api/v1/markup/byBatchId?id=${batch.id}`, {
+      withCredentials: true
+    });
+    currentMarkup.value = response.data;
+  } catch (error) {
+    console.error('Error fetching markup:', error);
+    return;
+  }
+
+  showEducationalModal.value = true;
+}
+
+function closeEducationalModal() {
+  showEducationalModal.value = false;
+  selectedBatchId.value = null;
+  currentTasks.value = [];
+  currentMarkup.value = null;
+}
+
+async function handleEducationalBatchSet() {
+  await fetchBatches();
+}
 
 // Lifecycle hooks
 onMounted(() => {
@@ -661,5 +727,37 @@ onMounted(() => {
     padding: 10px 12px;
     font-size: 0.9rem;
   }
+}
+
+.badge {
+  padding: 0.25rem 0.5rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.badge.educational {
+  background-color: #f0fdf4;
+  color: #166534;
+}
+
+.badge.normal {
+  background-color: #f1f5f9;
+  color: #475569;
+}
+
+.educational-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 6px;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+  color: #64748b;
+}
+
+.educational-btn:hover {
+  background-color: #f0fdf4;
+  color: #166534;
 }
 </style>

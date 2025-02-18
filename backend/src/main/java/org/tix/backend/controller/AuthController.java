@@ -12,7 +12,11 @@ import org.tix.backend.service.AuthService;
 
 @RestController
 @RequestMapping("/api/v1/user")
-@CrossOrigin(origins = "*", allowedHeaders = "*")
+@CrossOrigin(
+    origins = "http://localhost:80", 
+    allowedHeaders = "*", 
+    allowCredentials = "true"
+)
 public class AuthController {
 
     private final AuthService authService;
@@ -58,10 +62,12 @@ public class AuthController {
 
     private void setCookieForResponse(String jwt,HttpServletResponse response){
         Cookie cookie = new Cookie("access_token", jwt);
-        cookie.setHttpOnly(true);
+        //TODO: change to true if deploying with HTTPS
+        cookie.setHttpOnly(false);
         cookie.setSecure(false);
         cookie.setPath("/");
         cookie.setMaxAge(3600);
+        response.addHeader("Set-Cookie", "access_token=" + jwt + "; Path=/; HttpOnly; SameSite=None; Secure");
         response.addCookie(cookie);
     }
 }

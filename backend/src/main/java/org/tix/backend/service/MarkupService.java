@@ -3,6 +3,7 @@ package org.tix.backend.service;
 import org.springframework.stereotype.Service;
 import org.tix.backend.dto.MarkupDTO;
 import org.tix.backend.dto.mapper.MarkupMapper;
+import org.tix.backend.model.Batch;
 import org.tix.backend.model.Markup;
 import org.tix.backend.repository.BatchRepository;
 import org.tix.backend.repository.MarkupRepository;
@@ -26,6 +27,9 @@ public class MarkupService {
     }
 
     public Markup getMarkupByBatchId(Long id) {
-        return markupRepository.findByBatchId(batchRepository.findById(id).orElseThrow()).orElseThrow();
+        Batch batch = batchRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Batch not found"));
+        return markupRepository.findByBatchId(batch)
+                .orElseThrow(() -> new RuntimeException("No markup found for this batch"));
     }
 }

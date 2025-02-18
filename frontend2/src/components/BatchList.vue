@@ -20,6 +20,24 @@
             <span>{{ batchStatuses[batch.id] || 'Загрузка...' }}</span>
           </div>
         </div>
+          <div v-if="batch.isEducational && educationalStats[batch.id]" class="educational-stats">
+            <p class="stats-item">
+              <span class="stats-label">Success Rate:</span>
+              <span class="stats-value">{{ formatPercent(educationalStats[batch.id].successRate) }}%</span>
+            </p>
+            <p class="stats-item">
+              <span class="stats-label">Total Attempts:</span>
+              <span class="stats-value">{{ educationalStats[batch.id].totalAttempts }}</span>
+            </p>
+            <p class="stats-item">
+              <span class="stats-label">Correct Answers:</span>
+              <span class="stats-value">{{ educationalStats[batch.id].correctAttempts }}</span>
+            </p>
+            <p class="stats-item">
+              <span class="stats-label">Unique Assessors:</span>
+              <span class="stats-value">{{ educationalStats[batch.id].uniqueAssessors }}</span>
+            </p>
+          </div>
         </div>
         <div v-if="isAdmin" class="batch-admin-actions">
           <button @click.stop="openAssignModal(batch)" class="btn-assign">
@@ -46,11 +64,11 @@
 </template>
 
 <script setup>
-import {ref, computed, onMounted, watch} from 'vue';
+import { ref, computed, onMounted, watch } from 'vue';
 import { useAuthStore } from '@/stores/auth';
 import BatchUploadModal from './BatchUploadModal.vue';
 import BatchAssignmentModal from './BatchAssignmentModal.vue';
-import axios from "axios";
+import axios from 'axios';
 
 /**
  * Пропсы, которые принимает компонент:
@@ -75,6 +93,9 @@ const showUploadModal = ref(false);
 const showAssignModal = ref(false);
 const selectedBatchId = ref(null);
 const batchStatuses = ref({});
+
+const educationalStats = ref({});
+
 const formatDate = (dateString) => {
   return new Date(dateString).toLocaleString();
 };
@@ -88,13 +109,17 @@ onMounted(() => {
     fetchBatchStatus(batch.id);
   });
 });
+const formatPercent = (value) => {
+  return value.toFixed(1);
+};
+
 const openAssignModal = (batch) => {
   selectedBatchId.value = batch.id;
   showAssignModal.value = true;
 };
 const fetchBatchStatus = async (batchId) => {
   try {
-    const response = await axios.get(`/api/v1/batch/status?batchId=${batchId}`);
+    const response = await axios.get(`/api/v1/batch/status?batchId=${batchId}`, { withCredentials: true });
     batchStatuses.value[batchId] = response.data; // Например, "active" или "inactive"
   } catch (error) {
     console.error(`Ошибка при получении статуса для батча ${batchId}:`, error);
@@ -118,6 +143,29 @@ const getStatusClass = (batchId) => {
   if (status === 'inactive') return 'status-inactive';
   return 'status-unknown'; // Если статус неизвестен
 };
+
+const fetchEducationalStats = async (batch) => {
+  if (!batch.isEducational) return;
+  
+  try {
+    const response = await axios.get(`/api/v1/stats/educational`, {
+      params: { batchId: batch.id },
+      withCredentials: true
+    });
+    educationalStats.value[batch.id] = response.data;
+  } catch (error) {
+    console.error(`Error fetching educational stats for batch ${batch.id}:`, error);
+  }
+};
+
+// Watch for changes in batches prop
+watch(() => props.batches, async (newBatches) => {
+  for (const batch of newBatches) {
+    if (batch.isEducational) {
+      await fetchEducationalStats(batch);
+    }
+  }
+}, { immediate: true });
 </script>
 
 <style scoped>
@@ -203,6 +251,7 @@ button {
 .btn-assign:hover {
   background-color: #1e88e5;
 }
+
 .batch-status {
   display: flex;
   align-items: center;
@@ -228,5 +277,29 @@ button {
 
 .status-unknown {
   background-color: orange;
+}
+
+.educational-stats {
+  margin-top: 0.5rem;
+  padding: 0.5rem;
+  background-color: #f0fdf4;
+  border-radius: 4px;
+  border: 1px solid #dcfce7;
+}
+
+.stats-item {
+  display: flex;
+  justify-content: space-between;
+  margin: 0.25rem 0;
+  font-size: 0.875rem;
+  color: #166534;
+}
+
+.stats-label {
+  font-weight: 500;
+}
+
+.stats-value {
+  font-family: monospace;
 }
 </style>
