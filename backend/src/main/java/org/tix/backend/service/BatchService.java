@@ -67,4 +67,7 @@ public class BatchService {
 
     }
 
+    public List<Batch> getAllBatchesForAssessor(Long userId) {
+       return batchRepository.findAllByUserIdInAvailableUsers(userId);
+    }
 }

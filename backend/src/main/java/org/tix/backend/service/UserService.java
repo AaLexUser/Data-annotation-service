@@ -6,7 +6,9 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.tix.backend.dto.AssessorDTO;
 import org.tix.backend.dto.mapper.AssessorMapper;
+import org.tix.backend.model.Batch;
 import org.tix.backend.model.User;
+import org.tix.backend.repository.BatchRepository;
 import org.tix.backend.repository.UserRepository;
 import org.tix.backend.util.Role;
 
@@ -16,10 +18,12 @@ import java.util.stream.Collectors;
 @Service
 public class UserService {
     private final UserRepository userRepository;
+    private final BatchRepository batchRepository;
     private final AssessorMapper assessorMapper;
 
-    public UserService(UserRepository userRepository, AssessorMapper assessorMapper) {
+    public UserService(UserRepository userRepository, BatchRepository batchRepository, AssessorMapper assessorMapper) {
         this.userRepository = userRepository;
+        this.batchRepository = batchRepository;
         this.assessorMapper = assessorMapper;
     }
 
@@ -55,5 +59,21 @@ public class UserService {
 
     public List<AssessorDTO> getAllAssessors() {
         return userRepository.findAllByRole(Role.ASSESSOR).orElseThrow().stream().map(assessorMapper::toAssessorDTO).collect(Collectors.toList());
+    }
+
+    public void grantAssessorToBatch(Long batchId, Long userId) {
+        Batch batch = batchRepository.findById(batchId).orElseThrow();
+        List<User> tmp = batch.getAvailableUsers();
+        tmp.add(userRepository.findById(userId).orElseThrow());
+        batch.setAvailableUsers(tmp);
+        batchRepository.save(batch);
+    }
+
+    public void refuseBatchToAssessor(Long batchId, Long userId) {
+        Batch batch = batchRepository.findById(batchId).orElseThrow();
+        List<User> tmp = batch.getAvailableUsers();
+        tmp.remove(userRepository.findById(userId).orElseThrow());
+        batch.setAvailableUsers(tmp);
+        batchRepository.save(batch);
     }
 }

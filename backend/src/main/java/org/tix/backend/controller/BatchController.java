@@ -32,5 +32,9 @@ public class BatchController {
     public ResponseEntity<?> showAllBatches() {
         return ResponseEntity.ok(batchService.getAllBatches());
     }
+    @GetMapping("/for-assessor")
+    public ResponseEntity<?> showAllForAssessor(@RequestParam Long userId) {
+        return ResponseEntity.ok(batchService.getAllBatchesForAssessor(userId));
+    }
 
 }
