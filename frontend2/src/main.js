@@ -7,6 +7,8 @@ import toast from './plugins/toast';
 
 // Import Font Awesome CSS
 import '@fortawesome/fontawesome-free/css/all.css';
+import 'ag-grid-community/styles/ag-grid.css';
+import 'ag-grid-community/styles/ag-theme-alpine.css';
 
 const app = createApp(App);
 const pinia = createPinia();

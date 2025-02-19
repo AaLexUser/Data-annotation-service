@@ -48,22 +48,30 @@
                 class="view-markup-btn"
                 @click="viewMarkup(batch.id)"
                 title="Просмотреть разметку"
-            >
-              <span class="icon">👁</span>
-            </button>
-            <button
+              >
+                <span class="icon">👁</span>
+              </button>
+              <button
                 class="assign-btn"
                 @click="openAssignModal(batch)"
                 title="Назначить асессоров"
-            >
-              <span class="icon">👥</span>
-            </button>
-            <button
+              >
+                <span class="icon">👥</span>
+              </button>
+              <button
                 class="assign-btn"
                 @click="navigateToBatchDetail(batch)"
                 title="Детали"
               >
                 <span class="icon">⚙️</span>
+              </button>
+              <button
+                v-if="batch.isEducational"
+                class="stats-btn"
+                @click="openEducationalStatsModal(batch)"
+                title="View Educational Statistics"
+              >
+                <span class="icon">📊</span>
               </button>
               <button
                 v-if="!batch.isEducational"
@@ -97,6 +105,12 @@
         :tasks="currentTasks"
         @close="closeEducationalModal"
         @batch-set="handleEducationalBatchSet"
+      />
+
+      <EducationalStatsModal
+        v-if="showEducationalStatsModal"
+        :batchId="selectedBatchForStats?.id"
+        @close="closeEducationalStatsModal"
       />
 
       <div v-if="isViewMarkupModalOpen" class="modal-overlay">
@@ -151,6 +165,7 @@ import MarkupCreator from './MarkupCreator.vue';
 import BatchAssignmentModal from './BatchAssignmentModal.vue';
 import EducationalBatchModal from './EducationalBatchModal.vue';
 import AppLayout from './AppLayout.vue';
+import EducationalStatsModal from './EducationalStatsModal.vue';
 
 // Types
 const BatchType = {
@@ -439,6 +454,19 @@ function closeEducationalModal() {
 
 async function handleEducationalBatchSet() {
   await fetchBatches();
+}
+
+const showEducationalStatsModal = ref(false);
+const selectedBatchForStats = ref(null);
+
+function openEducationalStatsModal(batch) {
+  selectedBatchForStats.value = batch;
+  showEducationalStatsModal.value = true;
+}
+
+function closeEducationalStatsModal() {
+  showEducationalStatsModal.value = false;
+  selectedBatchForStats.value = null;
 }
 
 // Lifecycle hooks
@@ -759,5 +787,20 @@ onMounted(() => {
 .educational-btn:hover {
   background-color: #f0fdf4;
   color: #166534;
+}
+
+.stats-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 6px;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+  color: #64748b;
+}
+
+.stats-btn:hover {
+  background-color: #eef2ff;
+  color: #4f46e5;
 }
 </style>

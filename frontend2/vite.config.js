@@ -15,4 +15,12 @@ export default defineConfig({
       '@': fileURLToPath(new URL('./src', import.meta.url))
     },
   },
+  optimizeDeps: {
+    include: ['ag-grid-community', 'ag-grid-vue3']
+  },
+  build: {
+    commonjsOptions: {
+      include: [/ag-grid-community/, /ag-grid-vue3/, /node_modules/]
+    }
+  }
 })

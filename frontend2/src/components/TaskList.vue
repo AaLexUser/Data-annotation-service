@@ -16,7 +16,12 @@
             <div class="single-col" v-for="pair in taskData.pairs" :key="pair.keyBase">
               <template v-if="pair.keyBase.toLowerCase().includes('photo')">
                 <div class="single-photo">
-                  <img :src="pair.value1" :alt="pair.keyBase" class="photo-img" />
+                  <img 
+                    :src="pair.value1" 
+                    :alt="pair.keyBase" 
+                    class="photo-img" 
+                    @click="openImagePreview(pair.value1)"
+                  />
                 </div>
               </template>
               <template v-else>
@@ -32,10 +37,20 @@
             <div class="pair-row" v-for="pair in taskData.pairs" :key="pair.keyBase">
               <template v-if="pair.keyBase.toLowerCase().includes('photo')">
                 <div class="pair-col">
-                  <img :src="pair.value1" alt="photo1" class="photo-img" />
+                  <img 
+                    :src="pair.value1" 
+                    alt="photo1" 
+                    class="photo-img" 
+                    @click="openImagePreview(pair.value1)"
+                  />
                 </div>
                 <div class="pair-col">
-                  <img :src="pair.value2" alt="photo2" class="photo-img" />
+                  <img 
+                    :src="pair.value2" 
+                    alt="photo2" 
+                    class="photo-img" 
+                    @click="openImagePreview(pair.value2)"
+                  />
                 </div>
               </template>
               <template v-else>
@@ -81,6 +96,14 @@
         <button @click="nextTask" :disabled="currentIndex === tasks.length - 1">
           Следующая
         </button>
+      </div>
+    </div>
+
+    <!-- Image Preview Modal -->
+    <div v-if="previewImage" class="image-preview-modal" @click="closeImagePreview">
+      <div class="modal-content" @click.stop>
+        <button class="close-button" @click="closeImagePreview">&times;</button>
+        <img :src="previewImage" alt="Preview" class="preview-image" />
       </div>
     </div>
   </div>
@@ -199,6 +222,20 @@ const isSidebarOpen = ref(true);
 function toggleSidebar() {
   isSidebarOpen.value = !isSidebarOpen.value;
 }
+
+// Add new refs for image preview
+const previewImage = ref(null);
+
+// Add new methods for image preview
+function openImagePreview(imageUrl) {
+  previewImage.value = imageUrl;
+  document.body.style.overflow = 'hidden'; // Prevent scrolling when modal is open
+}
+
+function closeImagePreview() {
+  previewImage.value = null;
+  document.body.style.overflow = ''; // Restore scrolling
+}
 </script>
 
 <style scoped>
@@ -292,6 +329,12 @@ function toggleSidebar() {
   object-fit: cover;
   border-radius: 8px;
   border: 1px solid #e2e8f0;
+  cursor: zoom-in;
+  transition: transform 0.2s ease;
+}
+
+.photo-img:hover {
+  transform: scale(1.02);
 }
 
 /* Кнопки навигации */
@@ -393,6 +436,82 @@ function toggleSidebar() {
   .nav-buttons button {
     padding: 0.5rem 1rem;
     min-width: 100px;
+  }
+}
+
+/* Image Preview Modal Styles */
+.image-preview-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.9);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1100;
+  padding: 2rem;
+  animation: fadeIn 0.2s ease-out;
+}
+
+.modal-content {
+  position: relative;
+  max-width: 90vw;
+  max-height: 90vh;
+  animation: zoomIn 0.2s ease-out;
+}
+
+.preview-image {
+  max-width: 100%;
+  max-height: 90vh;
+  object-fit: contain;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.close-button {
+  position: absolute;
+  top: -2rem;
+  right: -2rem;
+  width: 2.5rem;
+  height: 2.5rem;
+  background-color: white;
+  border: none;
+  border-radius: 50%;
+  font-size: 1.5rem;
+  line-height: 1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #1a1a1a;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.close-button:hover {
+  background-color: #f3f4f6;
+  transform: scale(1.1);
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes zoomIn {
+  from {
+    transform: scale(0.95);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
   }
 }
 </style>
