@@ -70,7 +70,7 @@ const routes = [
     component: () => import('@/components/AssessorProfilePage.vue'),
     meta: {
       requiresAuth: true,
-      roles: ['ASSESSOR']
+      roles: ['ASSESSOR', 'ADMIN']
     }
   }
 ];
