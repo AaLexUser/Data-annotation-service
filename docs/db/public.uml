@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Diagram>
+  <ID>DATABASE</ID>
+  <OriginalElement>06aa35e9-73d1-4297-ae88-a292bb88b1d6.SCHEMA:postgres.public</OriginalElement>
+  <nodes>
+    <node x="25.93300806809293" y="278.765652044735">06aa35e9-73d1-4297-ae88-a292bb88b1d6.TABLE:postgres.public.task</node>
+    <node x="-4.066991931907069" y="505.59061532743453">06aa35e9-73d1-4297-ae88-a292bb88b1d6.TABLE:postgres.public.task_row_from_batch</node>
+    <node x="271.12818519461734" y="506.09061532743453">06aa35e9-73d1-4297-ae88-a292bb88b1d6.TABLE:postgres.public.user_markup_data</node>
+    <node x="61.57920056300816" y="143.42988210491535">06aa35e9-73d1-4297-ae88-a292bb88b1d6.TABLE:postgres.public.batch_user</node>
+    <node x="-222.7006020243924" y="59.78679872507534">06aa35e9-73d1-4297-ae88-a292bb88b1d6.TABLE:postgres.public.batch</node>
+    <node x="272.14707011493255" y="35.37200477719283">06aa35e9-73d1-4297-ae88-a292bb88b1d6.TABLE:postgres.public.my_user</node>
+    <node x="283.2124463383742" y="350.765652044735">06aa35e9-73d1-4297-ae88-a292bb88b1d6.TABLE:postgres.public.user_markup</node>
+    <node x="-269.7621690584315" y="371.1748034900211">06aa35e9-73d1-4297-ae88-a292bb88b1d6.TABLE:postgres.public.batch_correct_answers</node>
+    <node x="-452.98040461179295" y="158.31177619819542">06aa35e9-73d1-4297-ae88-a292bb88b1d6.TABLE:postgres.public.markup</node>
+    <node x="-491.98040461179295" y="370.6748034900211">06aa35e9-73d1-4297-ae88-a292bb88b1d6.TABLE:postgres.public.markup_elements</node>
+  </nodes>
+  <notes />
+  <edges>
+    <edge source="06aa35e9-73d1-4297-ae88-a292bb88b1d6.TABLE:postgres.public.markup" target="06aa35e9-73d1-4297-ae88-a292bb88b1d6.TABLE:postgres.public.batch" relationship="REFERENCES">
+      <point x="0.0" y="-56.0" />
+      <point x="-390.48040461179295" y="227.0" />
+      <point x="-133.2006020243924" y="227.0" />
+      <point x="0.0" y="92.0" />
+    </edge>
+    <edge source="06aa35e9-73d1-4297-ae88-a292bb88b1d6.TABLE:postgres.public.task" target="06aa35e9-73d1-4297-ae88-a292bb88b1d6.TABLE:postgres.public.batch" relationship="REFERENCES">
+      <point x="-83.66011617716413" y="-41.20166611816637" />
+      <point x="35.772891890928804" y="323.50423494530224" />
+      <point x="-133.2006020243924" y="323.50423494530224" />
+      <point x="0.0" y="92.0" />
+    </edge>
+    <edge source="06aa35e9-73d1-4297-ae88-a292bb88b1d6.TABLE:postgres.public.user_markup_data" target="06aa35e9-73d1-4297-ae88-a292bb88b1d6.TABLE:postgres.public.user_markup" relationship="REFERENCES">
+      <point x="0.0" y="-55.5" />
+      <point x="363.62818519461734" y="442.53185693260934" />
+      <point x="356.2124463383742" y="442.53185693260934" />
+      <point x="0.0" y="56.0" />
+    </edge>
+    <edge source="06aa35e9-73d1-4297-ae88-a292bb88b1d6.TABLE:postgres.public.batch_correct_answers" target="06aa35e9-73d1-4297-ae88-a292bb88b1d6.TABLE:postgres.public.batch" relationship="REFERENCES">
+      <point x="27.561567034039086" y="-46.389447558384404" />
+      <point x="0.0" y="92.0" />
+    </edge>
+    <edge source="06aa35e9-73d1-4297-ae88-a292bb88b1d6.TABLE:postgres.public.markup_elements" target="06aa35e9-73d1-4297-ae88-a292bb88b1d6.TABLE:postgres.public.markup" relationship="REFERENCES">
+      <point x="0.0" y="-56.0" />
+      <point x="-390.48040461179295" y="395.7202314172711" />
+      <point x="-390.48040461179295" y="395.7202314172711" />
+      <point x="0.0" y="56.0" />
+    </edge>
+    <edge source="06aa35e9-73d1-4297-ae88-a292bb88b1d6.TABLE:postgres.public.batch_user" target="06aa35e9-73d1-4297-ae88-a292bb88b1d6.TABLE:postgres.public.batch" relationship="REFERENCES">
+      <point x="-57.604696752908126" y="1.3122166046668582" />
+      <point x="29.88567357368064" y="188.2420987095822" />
+      <point x="29.88567357368064" y="227.0" />
+      <point x="-133.2006020243924" y="227.0" />
+      <point x="0.0" y="92.0" />
+    </edge>
+    <edge source="06aa35e9-73d1-4297-ae88-a292bb88b1d6.TABLE:postgres.public.batch_correct_answers" target="06aa35e9-73d1-4297-ae88-a292bb88b1d6.TABLE:postgres.public.task" relationship="REFERENCES">
+      <point x="54.5" y="-55.5" />
+      <point x="-106.26216905843148" y="445.92021241206027" />
+      <point x="119.43300806809293" y="445.92021241206027" />
+      <point x="0.0" y="92.0" />
+    </edge>
+    <edge source="06aa35e9-73d1-4297-ae88-a292bb88b1d6.TABLE:postgres.public.task_row_from_batch" target="06aa35e9-73d1-4297-ae88-a292bb88b1d6.TABLE:postgres.public.task" relationship="REFERENCES">
+      <point x="0.0" y="-56.0" />
+      <point x="0.0" y="92.0" />
+    </edge>
+    <edge source="06aa35e9-73d1-4297-ae88-a292bb88b1d6.TABLE:postgres.public.user_markup" target="06aa35e9-73d1-4297-ae88-a292bb88b1d6.TABLE:postgres.public.task" relationship="REFERENCES">
+      <point x="-36.5" y="-56.0" />
+      <point x="319.7124463383742" y="445.97328920330574" />
+      <point x="9.333935875928034" y="75.20763715857072" />
+    </edge>
+    <edge source="06aa35e9-73d1-4297-ae88-a292bb88b1d6.TABLE:postgres.public.batch_user" target="06aa35e9-73d1-4297-ae88-a292bb88b1d6.TABLE:postgres.public.my_user" relationship="REFERENCES">
+      <point x="61.16254920711452" y="27.385034316187742" />
+      <point x="185.24174977012268" y="206.97919181012264" />
+      <point x="226.8864160322188" y="206.97919181012264" />
+      <point x="226.8864160322188" y="155.62911953325954" />
+      <point x="406.39707011493255" y="155.62911953325954" />
+      <point x="44.75" y="68.0" />
+    </edge>
+    <edge source="06aa35e9-73d1-4297-ae88-a292bb88b1d6.TABLE:postgres.public.user_markup" target="06aa35e9-73d1-4297-ae88-a292bb88b1d6.TABLE:postgres.public.my_user" relationship="REFERENCES">
+      <point x="7.415738856243138" y="-58.13280999644303" />
+      <point x="363.62818519461734" y="155.49001953320936" />
+      <point x="378.43112143726427" y="155.49001953320936" />
+      <point x="378.43112143726427" y="141.23497316227792" />
+      <point x="-6.2530489454220515" y="37.86296838508508" />
+    </edge>
+  </edges>
+  <settings layout="Hierarchic Compact" zoom="0.7398326355994995" showDependencies="false" x="19.531840641526287" y="286.4356974507693" />
+  <SelectedNodes />
+  <Categories>
+    <Category>Columns</Category>
+    <Category>Comments</Category>
+    <Category>Key columns</Category>
+    <Category>Virtual foreign keys</Category>
+  </Categories>
+</Diagram>
+
