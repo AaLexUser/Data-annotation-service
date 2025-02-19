@@ -159,6 +159,7 @@ const filteredTasks = computed(() => {
 const {formatDate} = useFormatting();
 
 function goToTask(taskId) {
+
   console.log('Navigating to task:', taskId);
 }
 

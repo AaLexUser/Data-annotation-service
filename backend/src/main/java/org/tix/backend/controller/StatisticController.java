@@ -2,8 +2,9 @@ package org.tix.backend.controller;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.tix.backend.dto.stat.AdminPageStatisticDTO;
+import org.tix.backend.dto.stat.AssessorStatisticDTO;
 import org.tix.backend.dto.stat.AssessorEducationalStatDTO;
+import org.tix.backend.dto.stat.TaskStatForAdmin;
 import org.tix.backend.service.StatisticService;
 
 import java.util.List;
@@ -51,5 +52,11 @@ public class StatisticController {
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
+    }
+    @GetMapping("/assessor-stats")
+    public ResponseEntity<AssessorStatisticDTO> assessorStatisticsReport(@RequestParam("assessorId") Long assessorId){
+        return ResponseEntity.ok(statisticService.getAssessorStatistic(assessorId));
+
+
     }
 }

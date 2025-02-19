@@ -1,10 +1,8 @@
 package org.tix.backend.service;
 
 import org.springframework.stereotype.Service;
-import org.tix.backend.dto.stat.AdminPageStatisticDTO;
-import org.tix.backend.dto.stat.AssessorStatisticDTO;
-import org.tix.backend.dto.stat.AssessorEducationalStatDTO;
-import org.tix.backend.dto.stat.EducationalStatisticDTO;
+import org.tix.backend.dto.TaskDTO;
+import org.tix.backend.dto.stat.*;
 import org.tix.backend.model.Batch;
 import org.tix.backend.model.Task;
 import org.tix.backend.model.User;
@@ -15,10 +13,7 @@ import org.tix.backend.repository.UserMarkupRepository;
 import org.tix.backend.repository.UserRepository;
 
 import java.text.DecimalFormat;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.HashMap;
 import java.util.ArrayList;
 import java.util.Optional;
@@ -60,11 +55,74 @@ public class StatisticService {
         return adminPageStatisticDTO;
     }
 
-    public AssessorStatisticDTO getAssessorStatistic(Long userId){
-        AssessorStatisticDTO assessorStatisticDTO = new AssessorStatisticDTO();
+    public AssessorStatisticDTO getAssessorStatistic(Long userId) {
+        // 1) Создаём объект, который вернём
+        AssessorStatisticDTO dto = new AssessorStatisticDTO();
+
+        // 2) Карта "batchName -> totalMarkups"
+        Map<String, Integer> markupsStatistic = new HashMap<>();
+
+        // 3) Список задач (TaskStatForAdmin)
+        List<TaskStatForAdmin> statsList = new ArrayList<>();
+
+        // Находим пользователя
         User user = userRepository.findById(userId).orElseThrow();
-        return assessorStatisticDTO;
+
+        // Список батчей, в которых user — ассессор
+        List<Batch> batchList = batchRepository.findAllByUserIdInAvailableUsers(userId);
+
+        // 4) Перебираем батчи
+        for (Batch batch : batchList) {
+            // Находим все задачи в батче
+            List<Task> tasks = taskRepository.findAllByBatchId(batch);
+
+            int totalMarkups = 0;
+
+            // 5) Перебираем задачи в батче
+            for (Task task : tasks) {
+                // Сколько раз ассессор user делал разметку на задаче
+                int userMarkupsCount = userMarkupRepository.countByTaskIdAndAssessor(task.getId(), user);
+
+                // Если ассессор размечал эту задачу
+                if (userMarkupsCount > 0) {
+                    // Формируем TaskStatForAdmin
+                    TaskStatForAdmin tsfa = new TaskStatForAdmin();
+                    tsfa.setId(task.getId());
+
+                    // Можно брать статус из задачи или придумать логику
+                    // tsfa.setStatus(task.getStatus()); // если есть поле getStatus()
+                    tsfa.setStatus("IN_PROGRESS"); // пример
+
+                    // Финальная метка
+                    // tsfa.setFinalMark(task.getFinalMarkup()); // если getFinalMarkup() есть
+                    tsfa.setFinalMark(task.getFinalMarkup());
+
+                    // Название батча
+                    tsfa.setBatchName(batch.getName());
+
+                    // Время завершения (откуда брать? Например, из task или userMarkup)
+                    // Если нет, можно оставить null
+                    // tsfa.setFinishTime(task.getFinishTime().toString());
+                    tsfa.setFinishTime(null);
+
+                    statsList.add(tsfa);
+                }
+
+                // Суммируем кол-во разметок в этом батче
+                totalMarkups += userMarkupsCount;
+            }
+
+            // Сохраняем batchName -> totalMarkups
+            markupsStatistic.put(batch.getName(), totalMarkups);
+        }
+
+        // 6) Заполняем поля в dto
+        dto.setMarkupsStatistic(markupsStatistic);
+        dto.setStats(statsList);
+
+        return dto;
     }
+
 
     public EducationalStatisticDTO getEducationalStatistics(Long batchId) {
         Batch batch = batchRepository.findById(batchId)
@@ -86,7 +144,7 @@ public class StatisticService {
 
         for (Task task : tasks) {
             List<UserMarkup> markups = userMarkupRepository.findByTaskId(task.getId());
-            
+
             for (UserMarkup markup : markups) {
                 totalAttempts++;
                 uniqueAssessors.add(markup.getAssessor().getId());
@@ -96,8 +154,9 @@ public class StatisticService {
                 if (correctAnswerJson != null) {
                     try {
                         ObjectMapper mapper = new ObjectMapper();
-                        Map<String, String> correctAnswer = mapper.readValue(correctAnswerJson, new TypeReference<Map<String, String>>() {});
-                        
+                        Map<String, String> correctAnswer = mapper.readValue(correctAnswerJson, new TypeReference<Map<String, String>>() {
+                        });
+
                         // Compare with user's answer
                         if (compareSelections(correctAnswer, markup.getSelections())) {
                             correctAttempts++;
