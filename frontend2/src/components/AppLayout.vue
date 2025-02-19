@@ -37,13 +37,17 @@
 
       <div class="user-section">
         <div class="user-info">
-          <div class="avatar">
+          <div 
+            class="avatar" 
+            @click="navigateToProfile"
+            :style="{ cursor: 'pointer' }"
+          >
             {{ userInitials }}
           </div>
           <div 
             class="user-details" 
             @click="navigateToProfile"
-            :style="{ cursor: authStore.isAssessor ? 'pointer' : 'default' }"
+            :style="{ cursor: 'pointer' }"
           >
             <div class="user-name">{{ userName }}</div>
             <div class="user-role">{{ userRole }}</div>
@@ -86,9 +90,7 @@ const userInitials = computed(() => {
 });
 
 const navigateToProfile = () => {
-  if (authStore.isAssessor) {
-    router.push('/assessor-profile');
-  }
+  router.push('/assessor-profile');
 };
 
 const handleLogout = () => {
