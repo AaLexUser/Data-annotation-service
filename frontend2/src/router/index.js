@@ -62,7 +62,16 @@ const routes = [
         requiresAuth: true,
         roles: ['ADMIN']
 
-}
+    }
+  },
+  {
+    path: '/assessor-profile',
+    name: 'AssessorProfile',
+    component: () => import('@/components/AssessorProfilePage.vue'),
+    meta: {
+      requiresAuth: true,
+      roles: ['ASSESSOR']
+    }
   }
 ];
 

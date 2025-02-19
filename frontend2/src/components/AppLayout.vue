@@ -40,7 +40,11 @@
           <div class="avatar">
             {{ userInitials }}
           </div>
-          <div class="user-details">
+          <div 
+            class="user-details" 
+            @click="navigateToProfile"
+            :style="{ cursor: authStore.isAssessor ? 'pointer' : 'default' }"
+          >
             <div class="user-name">{{ userName }}</div>
             <div class="user-role">{{ userRole }}</div>
           </div>
@@ -80,6 +84,12 @@ const userInitials = computed(() => {
     .toUpperCase()
     .slice(0, 2);
 });
+
+const navigateToProfile = () => {
+  if (authStore.isAssessor) {
+    router.push('/assessor-profile');
+  }
+};
 
 const handleLogout = () => {
   authStore.logout();
