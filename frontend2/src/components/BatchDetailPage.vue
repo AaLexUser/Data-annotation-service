@@ -98,17 +98,6 @@ const tasks = ref([]);
 const statusFilter = ref('');
 const scoreFilter = ref('');
 
-// const fetchPackageDetails = async () => {
-//   try {
-//     const response = await axios.get('/api/v1/batch/details');
-//     packageName.value = response.data.name;
-//     packageStatus.value = response.data.status;
-//     packageDetails.value = response.data.details;
-//     tasks.value = response.data.tasks;
-//   } catch (error) {
-//     console.error('Error fetching package details:', error);
-//   }
-// };
 const fetchBatchTasks = async () => {
   if (!batch.value || !batch.value.id) {
     console.error(" Ошибка: batch.id отсутствует, не могу загрузить задачи!");
@@ -117,7 +106,7 @@ const fetchBatchTasks = async () => {
 
   try {
     console.log(`Запрашиваем задачи для batchId=${batch.value.id}`);
-    const response = await axios.get(`/api/v1/batch/${batch.value.id}/tasks`);
+    const response = await axios.get(`/api/v1/batch/${batch.value.id}/tasks`, { withCredentials: true });
     tasks.value = response.data; // Загружаем все задачи
     console.log(`Загружено ${tasks.value.length} задач`);
   } catch (error) {
@@ -131,7 +120,7 @@ const savePackageName = async () => {
     await axios.post('/api/v1/batch/update-name', {
       batchId: batch.value.id,
       name: packageName.value
-    });
+    }, { withCredentials: true });
   } catch (error) {
     console.error('Error saving package name:', error);
   }
@@ -176,7 +165,7 @@ function goToTask(taskId) {
 const togglePackageStatus = async () => {
   try {
     const newStatus = packageStatus.value ? "active" : "inactive";
-    await axios.post(`/api/v1/batch/${batch.value.id}/toggle-status`, {status: newStatus});
+    await axios.post(`/api/v1/batch/${batch.value.id}/toggle-status`, {status: newStatus}, { withCredentials: true });
     console.log(`Статус батча обновлён: ${newStatus}`);
   } catch (error) {
     console.error('Ошибка при изменении статуса батча:', error);
@@ -185,7 +174,7 @@ const togglePackageStatus = async () => {
 };
 const fetchBatchStatus = async () => {
   try {
-    const response = await axios.get(`/api/v1/batch/${batch.value.id}/status`);
+    const response = await axios.get(`/api/v1/batch/${batch.value.id}/status`, { withCredentials: true });
     packageStatus.value = response.data.status === "active"; // Если "active", ставим true
   } catch (error) {
     console.error('Ошибка при получении статуса батча:', error);
