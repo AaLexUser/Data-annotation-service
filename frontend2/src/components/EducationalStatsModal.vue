@@ -437,15 +437,19 @@ onMounted(() => {
 
 .stat-number {
   display: flex;
+  flex-direction: column;
   align-items: center;
   gap: 12px;
+  margin-bottom: 8px;
 }
 
 .number {
-  font-size: 2rem;
+  font-size: 2.5rem;
   font-weight: 700;
-  color: #2c3e50;
+  color: #1e293b;
   font-family: 'Inter', sans-serif;
+  line-height: 1;
+  text-align: center;
 }
 
 .icon {
@@ -533,5 +537,20 @@ onMounted(() => {
 :deep(.ag-header-cell-filtered) {
   background-color: #eff6ff !important;
   color: #1e40af;
+}
+
+.stat-card.assessors, .stat-card.tasks {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding-top: 32px;
+  padding-bottom: 32px;
+}
+
+.stat-card.assessors .stat-info, .stat-card.tasks .stat-info {
+  margin-top: 0;
+  padding-top: 12px;
 }
 </style> 
